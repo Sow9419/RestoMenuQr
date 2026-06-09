@@ -1,0 +1,6 @@
+{
+  "name": "RestoMenu Digital",
+  "description": "Digitalisez votre restaurant, générez votre menu QR code, prenez des commandes sur place ou en livraison, et suivez les ventes en temps réel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
