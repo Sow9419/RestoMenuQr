@@ -117,37 +117,33 @@ uniquement.
 # Structure du Projet
 
 ```txt
-src/
+├── app/                  # Points d'accès Next.js App Router (pages et routing)
 
-├── app/
+├── features/             # Architecture modulaire "Feature First" (autonomes)
+│   ├── menu/             # Logique du menu, édition plats et catégories
+│   ├── order/            # Cycle de vie et suivi des commandes
+│   ├── checkout/         # Formulaires de finalisation panier (Dine-in / Delivery)
+│   ├── cart/             # Gestion du panier d'achat local (Zustand store client)
+│   ├── pos/              # Module d'encaissement et de caisse enregistreuse
+│   ├── settings/         # Configuration restaurant et invitations d'équipe
+│   ├── dashboard/        # Analyse d'activité et calcul des KPI
+│   ├── auth/             # Logique d'onboarding par Magic Link et RBAC
+│   └── billing/          # Abonnement SaaS et portail d'inscription Stripe
 
-├── features/
-│   ├── menu/
-│   ├── order/
-│   ├── checkout/
-│   ├── cart/
-│   ├── pos/
-│   ├── settings/
-│   ├── dashboard/
-│   ├── auth/
-│   └── billing/
+├── templates/            # Moteur de template JSON-driven (UI générative isolée)
+│   ├── engine/           # Interpréteur et boucle de rendu
+│   ├── layouts/          # Modèles de structure (Classic, Card-grid, Premium)
+│   ├── sections/         # Blocs layout de haut niveau (Hero, Categories, Menu)
+│   ├── blocks/           # Briques visuelles unitaires (Plat, Badge, Prix)
+│   └── themes/           # CSS et tokens sémantiques isolés du domaine métier
 
-├── templates/
-
-│   ├── engine/
-│   ├── layouts/
-│   ├── sections/
-│   ├── blocks/
-│   └── themes/
-
-├── shared/
-
-│   ├── ui/
-│   ├── hooks/
-│   ├── lib/
-│   ├── utils/
-│   ├── constants/
-│   └── types/
+├── shared/               # Code transverse réutilisable sans couplage métier
+│   ├── ui/               # Composants graphiques atomiques de base (Boutons, Inputs, etc.)
+│   ├── hooks/            # Hooks utilitaires réutilisables (useToast, forceUpdate)
+│   ├── lib/              # Clients d'infrastructure configurés (supabase Client, stripe API)
+│   ├── utils/            # Assistants mathématiques purs ou textuels (cn, formatCurrency)
+│   ├── constants/        # Données de configuration transversales figées
+│   └── types/            # Déclarations globales d'infrastructure techniques
 ```
 
 ---

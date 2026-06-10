@@ -20,5 +20,24 @@ Tous les codes d'erreur retournés par le système doivent être standardisés p
 - `ERR_OUT_OF_STOCK` : Le produit demandé n'est plus disponible.
 
 ## Codes Métier - Settings & Staff
-- `ERR_TOO_MANY_ACTIVE_INVITATIONS` : Plus de 10 invitations en attente.
-- `ERR_INVITATION_EXPIRED` : Le lien d'invitation (24h) est obsolète.
+- `ERR_TOO_MANY_ACTIVE_INVITATIONS` : Plus de 10 invitations actives ou en attente d'acceptation simultanées.
+- `ERR_INVITATION_EXPIRED` : Le jalon d'accès invité (24h) est obsolète et inutilisable.
+- `ERR_INVITATION_ALREADY_ACCEPTED` : Cet e-mail d'invitation a déjà été consommé par un utilisateur d'authentification valide.
+
+## Codes d'Erreur Globaux Supplémentaires
+- `ERR_SESSION_EXPIRED` : La session utilisateur ou les cookies d'authentification Supabase ont expiré, nécessitant une reconnexion Magic Link.
+- `ERR_MAGIC_LINK_EXPIRED` : Le lien d'authentification OTP à usage unique a dépassé sa durée légale de validité.
+- `ERR_MAGIC_LINK_ALREADY_USED` : Le lien d'accès direct par jeton a déjà été utilisé lors d'une précédente session d'initialisation.
+
+## Codes Métier Supplémentaires - Menu & Commande Client
+- `ERR_MENU_NOT_FOUND` : Le slug de restaurant spécifié dans l'URL n'est associé à aucun établissement enregistré en base.
+- `ERR_RESTAURANT_CLOSED` : Le restaurant est enregistré comme momentanément fermé (`is_open = false`). Les commandes sont temporairement bloquées.
+- `ERR_CART_EMPTY` : Tentative d'accès à l'achat ou de checkout avec un panier d'éléments vide localement.
+- `ERR_CART_ITEM_UNAVAILABLE` : Un des plats ajoutés au panier a été désactivé (`is_available = false`) ou supprimé par l'administrateur depuis sa mise en panier. Identique à `ERR_OUT_OF_STOCK`.
+- `ERR_INVALID_WHATSAPP` : Le numéro de téléphone mobile ou WhatsApp fourni pour confirmer la livraison n'est pas au format international requis.
+- `ERR_DELIVERY_ADDRESS_REQUIRED` : L'adresse de livraison physique est obligatoire pour finaliser une commande de type `DELIVERY`.
+
+## Codes de tarification SaaS & Plan Limitations
+- `ERR_PLAN_LIMIT_REACHED` : Le restaurant a atteint son quota maximum de commandes autorisées pour le mois en cours (Starter Plan à 50 commandes).
+- `ERR_SUBSCRIPTION_INACTIVE` : Les fonctionnalités Premium (caisse POS avancée, gestion d'équipe) sont inaccessibles car l'abonnement du tenant n'est pas actif (statut `past_due` ou `canceled`).
+

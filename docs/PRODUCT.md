@@ -257,9 +257,10 @@ Statuts :
 
 ## Settings
 
-UC-019
-UC-020
-UC-021
+* **UC-019 — Paramètres Généraux du Restaurant :** Permettre à l'Owner de modifier l'identité légale et visuelle de son restaurant (nom de marque, adresse de l'établissement physique, numéro WhatsApp officiel, logo du restaurant, devise de vente du menu, fuseau horaire).
+* **UC-020 — Gestion d'Ouverture instantanée de la Cuisine :** Permettre au Staff muni du rôle `OWNER` ou `CASHIER` de modifier l'état d'ouverture (`is_open = true/false`) du restaurant. Les clients reçoivent un avertissement immédiat et ne peuvent pas finaliser de commande si l'établissement est fermé.
+* **UC-021 — Gestion du Personnel d'Équipe (RBAC) :** Permettre au restaurateur `OWNER` d'inviter de nouveaux collaborateurs via email en leur assignant un rôle d'équipe adéquat (`WAITER`, `CASHIER`, `KITCHEN`), d'afficher la liste des invitations en attente, et de révoquer un accès existant immédiatement.
+
 
 ---
 
