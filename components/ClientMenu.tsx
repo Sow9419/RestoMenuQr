@@ -42,6 +42,19 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
 
   // Selected theme/css properties based on config style setting
   const style = config?.style || DEFAULT_STYLE;
+  const isLight = style.displayMode === 'light';
+
+  // Semantic styles for the Light Theme migration
+  const colorBg = isLight ? 'bg-[#FAFAF9]' : 'bg-slate-900';
+  const colorSurfaceBg = isLight ? 'bg-[#F5F5F4]' : 'bg-slate-950/40';
+  const colorSurfaceSolid = isLight ? 'bg-[#F5F5F4]' : 'bg-slate-950';
+  const colorRaised = isLight ? 'bg-[#E7E5E4]' : 'bg-slate-900';
+  const colorBorder = isLight ? 'border-[#E7E5E4]' : 'border-slate-800';
+  const colorBorderLight = isLight ? 'border-[#E7E5E4]/60' : 'border-slate-900/60';
+  const colorTextPrimary = isLight ? 'text-[#1C1917]' : 'text-slate-100';
+  const colorTextSecondary = isLight ? 'text-[#78716C]' : 'text-slate-300';
+  const colorTextTertiary = isLight ? 'text-[#A8A29E]' : 'text-slate-550';
+
   const currentPreset = BACKGROUND_PRESETS.find(p => p.id === style.backgroundImageUrl) || BACKGROUND_PRESETS[0];
   const currentFont = FONTS_LIST.find(f => f.id === style.fontFamily) || FONTS_LIST[0];
 
@@ -335,15 +348,15 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
           />
           {/* Glass Overlay backdrop */}
           <div 
-            className="absolute inset-0 bg-slate-900"
-            style={{ opacity: `${style.overlayOpacity}%` }}
+            className={`absolute inset-0 ${isLight ? 'bg-[#FAFAF9]' : 'bg-slate-900'}`}
+            style={{ opacity: isLight ? '100%' : `${style.overlayOpacity}%` }}
           />
-          {style.glassmorphism && (
+          {style.glassmorphism && !isLight && (
             <div className="absolute inset-0 backdrop-blur-md bg-white/5" />
           )}
         </div>
       ) : (
-        <div className={`absolute inset-0 ${currentPreset.class} z-0`} />
+        <div className={`absolute inset-0 ${isLight ? 'bg-[#FAFAF9]' : currentPreset.class} z-0`} />
       )}
 
       {/* Dynamic inline client stylesheet to enforce the brand colors */}
@@ -415,18 +428,22 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
             {/* SEARCH BANNER BOX */}
             <div className="px-4 pt-4 shrink-0">
               <div className="relative">
-                <Search className="absolute left-3.5 top-3 text-slate-500" size={14} />
+                <Search className={`absolute left-3.5 top-3 ${isLight ? 'text-[#78716C]' : 'text-slate-500'}`} size={14} />
                 <input 
                   type="text" 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Rechercher des tapas, grillades..."
-                  className="w-full bg-slate-950/60 border border-slate-800 text-xs text-white rounded-2xl pl-9 pr-8 py-3 focus:outline-none focus:border-rose-500 transition-all font-sans"
+                  className={`w-full text-xs rounded-2xl pl-9 pr-8 py-3 focus:outline-none focus:border-rose-500 transition-all font-sans ${
+                    isLight 
+                      ? 'bg-[#F5F5F4] border border-[#E7E5E4] text-[#1C1917] placeholder-[#A8A29E]' 
+                      : 'bg-slate-950/60 border border-slate-800 text-white placeholder-slate-500'
+                  }`}
                 />
                 {searchTerm && (
                   <button 
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-3 text-slate-500 hover:text-slate-200"
+                    className={`absolute right-3 top-3 ${isLight ? 'text-[#78716C] hover:text-[#1C1917]' : 'text-slate-500 hover:text-slate-200'}`}
                   >
                     <X size={14} />
                   </button>
@@ -443,7 +460,9 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
                     className={`px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === 'ALL' 
                         ? 'brand-accent-bg text-white shadow-md' 
-                        : 'bg-slate-950/50 hover:bg-slate-900/50 text-slate-300'
+                        : isLight 
+                          ? 'bg-[#F5F5F4] hover:bg-[#E7E5E4] text-[#78716C]' 
+                          : 'bg-slate-950/50 hover:bg-slate-900/50 text-slate-300'
                     }`}
                   >
                     Tout
@@ -455,7 +474,9 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
                       className={`px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all whitespace-nowrap flex items-center gap-1 cursor-pointer ${
                         activeCategory === cat.id 
                           ? 'brand-accent-bg text-white shadow-md' 
-                          : 'bg-slate-950/50 hover:bg-slate-900/50 text-slate-300'
+                          : isLight 
+                            ? 'bg-[#F5F5F4] hover:bg-[#E7E5E4] text-[#78716C]' 
+                            : 'bg-slate-950/50 hover:bg-slate-900/50 text-slate-300'
                       }`}
                     >
                       {cat.name}
@@ -481,9 +502,13 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
                       className="space-y-3"
                     >
                       {/* Section Title */}
-                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-900 pb-1 flex items-center gap-2">
+                      <h3 className={`text-xs font-bold uppercase tracking-widest border-b pb-1 flex items-center gap-2 ${
+                        isLight ? 'text-[#78716C] border-[#E7E5E4]' : 'text-slate-400 border-slate-900'
+                      }`}>
                         <span>{cat.name}</span>
-                        <span className="text-[10px] font-mono text-slate-600 bg-slate-950 px-1.5 py-0.2 rounded">
+                        <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                          isLight ? 'text-[#78716C] bg-[#E7E5E4]' : 'text-slate-600 bg-slate-950'
+                        }`}>
                           {catDishes.length}
                         </span>
                       </h3>
@@ -493,30 +518,32 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
                         {catDishes.map((item) => (
                           <div 
                             key={item.id}
-                            className={`bg-slate-950/40 border border-slate-900/60 rounded-2xl overflow-hidden shadow-sm flex relative ${
-                              style.density === 'compact' ? 'p-2.5 gap-2.5' : 'p-3.5 gap-3.5'
-                            } ${!item.isAvailable || !config.isOpen ? 'opacity-60' : ''}`}
+                            className={`rounded-2xl overflow-hidden shadow-sm flex relative transition-colors ${
+                              isLight ? 'bg-[#F5F5F4] border border-[#E7E5E4]' : 'bg-slate-950/40 border border-slate-900/60'
+                            } ${style.density === 'compact' ? 'p-2.5 gap-2.5' : 'p-3.5 gap-3.5'} ${
+                              !item.isAvailable || !config.isOpen ? 'opacity-60' : ''
+                            }`}
                           >
                             {/* Dish image thumbnail */}
                             <img 
                               src={item.imageUrl} 
                               alt={item.name} 
-                              className={`object-cover rounded-xl border border-slate-900/50 shrink-0 ${
-                                style.density === 'compact' ? 'w-14 h-14' : 'w-20 h-20'
-                              }`}
+                              className={`object-cover rounded-xl shrink-0 border ${
+                                isLight ? 'border-[#E7E5E4]' : 'border-slate-900/50'
+                              } ${style.density === 'compact' ? 'w-14 h-14' : 'w-20 h-20'}`}
                             />
 
                             {/* Details text */}
                             <div className="flex-1 min-w-0 pr-6 flex flex-col justify-between">
                               <div>
-                                <h4 className="text-xs font-bold text-slate-100 truncate">{item.name}</h4>
-                                <p className="text-[10px] text-slate-400 line-clamp-2 mt-0.5 leading-normal font-sans">
+                                <h4 className={`text-xs font-bold truncate ${isLight ? 'text-[#1C1917]' : 'text-slate-100'}`}>{item.name}</h4>
+                                <p className={`text-[10px] line-clamp-2 mt-0.5 leading-normal font-sans ${isLight ? 'text-[#78716C]' : 'text-slate-400'}`}>
                                   {item.description}
                                 </p>
                               </div>
                               
                               <div className="flex items-baseline gap-1 mt-1">
-                                <span className="text-xs font-bold font-mono text-slate-200">{formatPrice(item.price)}</span>
+                                <span className={`text-xs font-bold font-mono ${isLight ? 'text-[#1C1917]' : 'text-slate-200'}`}>{formatPrice(item.price)}</span>
                               </div>
                             </div>
 
@@ -527,7 +554,9 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
                               className={`absolute bottom-3.5 right-3.5 w-7 h-7 rounded-full flex items-center justify-center text-white cursor-pointer active:scale-95 transition-all ${
                                 item.isAvailable && config.isOpen
                                   ? 'brand-accent-bg hover:opacity-90' 
-                                  : 'bg-slate-800 text-slate-600'
+                                  : isLight 
+                                    ? 'bg-[#E7E5E4] text-[#A8A29E]' 
+                                    : 'bg-slate-800 text-slate-600'
                               }`}
                             >
                               <Plus size={14} />
@@ -558,18 +587,22 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
             {/* INFOS RESTO SECTION */}
             {config.sections.find(s => s.id === 'infos')?.enabled && (
               <div className="px-4 mt-8 shrink-0">
-                <div className="bg-slate-950/50 rounded-2xl p-4 border border-slate-900/60 text-xs text-slate-300 space-y-3">
-                  <h4 className="font-bold text-slate-100 flex items-center gap-1 pb-1.5 border-b border-slate-900">
+                <div className={`rounded-2xl p-4 border text-xs space-y-3 ${
+                  isLight ? 'bg-[#F5F5F4] border-[#E7E5E4] text-[#78716C]' : 'bg-slate-950/50 border border-slate-900/60 text-slate-300'
+                }`}>
+                  <h4 className={`font-bold flex items-center gap-1 pb-1.5 border-b ${
+                    isLight ? 'text-[#1C1917] border-[#E7E5E4]' : 'text-slate-100 border-slate-900'
+                  }`}>
                     <Store size={14} className="brand-accent-text" />
                     {"Infos & Horaires d'Assistance"}
                   </h4>
                   <div className="flex items-center gap-2">
                     <Clock size={13} className="text-rose-500" />
-                    <span>Ouvert 7j/7 de 12H00 à 23H00</span>
+                    <span className={isLight ? 'text-[#1C1917]' : ''}>Ouvert 7j/7 de 12H00 à 23H00</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <MapPin size={13} className="text-rose-500 mt-0.5" />
-                    <span className="leading-normal">{config.address}</span>
+                    <span className={`leading-normal ${isLight ? 'text-[#1C1917]' : ''}`}>{config.address}</span>
                   </div>
                 </div>
               </div>
@@ -580,14 +613,18 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
         {/* STEP 2: CART / BASKET SUMMARY */}
         {clientStep === 'CART' && (
           <div className="flex-1 p-4 flex flex-col font-sans max-w-md mx-auto w-full relative z-10 select-none pb-20">
-            <div className="flex items-center gap-2 pb-4 border-b border-slate-900">
+            <div className={`flex items-center gap-2 pb-4 border-b ${
+              isLight ? 'border-[#E7E5E4]' : 'border-slate-900'
+            }`}>
               <button 
                 onClick={() => setClientStep('MENU')}
-                className="p-1.5 hover:bg-slate-900/60 text-slate-400 rounded-lg cursor-pointer"
+                className={`p-1.5 rounded-lg cursor-pointer ${
+                  isLight ? 'hover:bg-[#E7E5E4] text-[#78716C]' : 'hover:bg-slate-900/60 text-slate-400'
+                }`}
               >
                 <ChevronLeft size={16} />
               </button>
-              <h2 className="text-sm font-extrabold text-slate-200">Détail de mon Panier</h2>
+              <h2 className={`text-sm font-extrabold ${isLight ? 'text-[#1C1917]' : 'text-slate-200'}`}>Détail de mon Panier</h2>
             </div>
 
             {/* List items */}
@@ -598,13 +635,15 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
                 return (
                   <div 
                     key={c.id} 
-                    className={`p-3.5 bg-slate-950/40 border border-slate-900 rounded-2xl flex justify-between items-center gap-3 ${
+                    className={`p-3.5 rounded-2xl flex justify-between items-center gap-3 transition-colors ${
+                      isLight ? 'bg-[#F5F5F4] border border-[#E7E5E4]' : 'bg-slate-950/40 border border-slate-905/60'
+                    } ${
                       !c.available ? 'border-red-500/20 shadow-red-500/5' : ''
                     }`}
                   >
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-bold text-slate-200 truncate">{item.name}</h4>
-                      <p className="text-[10px] text-slate-500 font-mono mt-0.5">{formatPrice(item.price)} la part</p>
+                      <h4 className={`text-xs font-bold truncate ${isLight ? 'text-[#1C1917]' : 'text-slate-200'}`}>{item.name}</h4>
+                      <p className={`text-[10px] font-mono mt-0.5 ${isLight ? 'text-[#78716C]' : 'text-slate-500'}`}>{formatPrice(item.price)} la part</p>
                       
                       {/* Warning alerts item not available - UC-005 */}
                       {!c.available && (
@@ -617,18 +656,24 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
 
                     <div className="flex items-center gap-3">
                       {/* Quantities panel */}
-                      <div className="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5">
+                      <div className={`flex items-center rounded-lg p-0.5 border ${
+                        isLight ? 'bg-[#FAFAF9] border-[#E7E5E4]' : 'bg-slate-950 border-slate-800'
+                      }`}>
                         <button 
                           onClick={() => updateCartQty(c.id, -1)}
-                          className="w-5 h-5 flex items-center justify-center rounded text-slate-400 hover:text-white cursor-pointer"
+                          className={`w-5 h-5 flex items-center justify-center rounded cursor-pointer ${
+                            isLight ? 'text-[#78716C] hover:text-[#1C1917]' : 'text-slate-400 hover:text-white'
+                          }`}
                         >
                           <Minus size={10} />
                         </button>
-                        <span className="text-xs font-bold font-mono px-2 text-slate-200">{c.quantity}</span>
+                        <span className={`text-xs font-bold font-mono px-2 ${isLight ? 'text-[#1C1917]' : 'text-slate-200'}`}>{c.quantity}</span>
                         <button 
                           onClick={() => updateCartQty(c.id, 1)}
                           disabled={!c.available}
-                          className="w-5 h-5 flex items-center justify-center rounded text-slate-400 hover:text-white cursor-pointer disabled:opacity-20"
+                          className={`w-5 h-5 flex items-center justify-center rounded cursor-pointer disabled:opacity-20 ${
+                            isLight ? 'text-[#78716C] hover:text-[#1C1917]' : 'text-slate-400 hover:text-white'
+                          }`}
                         >
                           <Plus size={10} />
                         </button>
@@ -646,7 +691,7 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
               })}
 
               {cartWithItems.length === 0 && (
-                <div className="py-24 text-center text-slate-500">
+                <div className={`py-24 text-center ${isLight ? 'text-[#78716C]' : 'text-slate-500'}`}>
                   Votre panier est vide. Visitez le menu pour ajouter des plats succulents !
                 </div>
               )}
@@ -654,14 +699,18 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
 
             {/* Receipt Summary block */}
             {cart.length > 0 && (
-              <div className="pt-4 border-t border-slate-900 space-y-4">
-                <div className="bg-slate-950/60 p-4 border border-slate-900 rounded-2xl space-y-2">
-                  <div className="flex justify-between text-xs text-slate-400 font-sans">
+              <div className={`pt-4 border-t space-y-4 ${isLight ? 'border-[#E7E5E4]' : 'border-slate-900'}`}>
+                <div className={`p-4 border rounded-2xl space-y-2 ${
+                  isLight ? 'bg-[#F5F5F4] border-[#E7E5E4]' : 'bg-slate-950/60 border border-slate-900 rounded-2xl'
+                }`}>
+                  <div className={`flex justify-between text-xs font-sans ${isLight ? 'text-[#78716C]' : 'text-slate-400'}`}>
                     <span>Quantité totale :</span>
-                    <span className="font-mono font-semibold text-slate-200">{totalQuantity}</span>
+                    <span className={`font-mono font-semibold ${isLight ? 'text-[#1C1917]' : 'text-slate-200'}`}>{totalQuantity}</span>
                   </div>
-                  <div className="flex justify-between text-sm py-2 border-t border-slate-900/60 font-sans font-bold">
-                    <span className="text-slate-100">Total :</span>
+                  <div className={`flex justify-between text-sm py-2 border-t font-sans font-bold ${
+                    isLight ? 'border-[#E7E5E4]' : 'border-slate-900/60'
+                  }`}>
+                    <span className={isLight ? 'text-[#1C1917]' : 'text-slate-100'}>Total :</span>
                     <span className="font-mono brand-accent-text text-base">{formatPrice(cartTotal)}</span>
                   </div>
 
@@ -737,20 +786,26 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
         {/* STEP 4: CONFIRMATION DINE IN SCREEN */}
         {clientStep === 'CONFIRM_DINE_IN' && (
           <div className="flex-1 p-5 flex flex-col font-sans max-w-sm mx-auto w-full justify-center relative z-10 select-none pb-20 space-y-5">
-            <div className="bg-slate-950/60 rounded-2xl p-5 border border-slate-900 space-y-4">
-              <h3 className="text-sm font-extrabold text-slate-100 text-center border-b border-slate-900 pb-2">Résumé Sur Place</h3>
+            <div className={`rounded-2xl p-5 border space-y-4 ${
+              isLight ? 'bg-[#F5F5F4] border-[#E7E5E4]' : 'bg-slate-950/60 border border-slate-950'
+            }`}>
+              <h3 className={`text-sm font-extrabold text-center border-b pb-2 ${
+                isLight ? 'text-[#1C1917] border-[#E7E5E4]' : 'text-slate-100 border-slate-900/60'
+              }`}>Résumé Sur Place</h3>
               
-              <div className="space-y-1.5 text-xs text-slate-400">
+              <div className={`space-y-1.5 text-xs ${isLight ? 'text-[#78716C]' : 'text-slate-400'}`}>
                 <div className="flex justify-between">
                   <span>Type de service :</span>
-                  <span className="font-bold text-purple-400">SUR PLACE</span>
+                  <span className="font-bold text-purple-650">SUR PLACE</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between font-sans">
                   <span>Articles :</span>
-                  <span className="font-mono text-slate-200">{totalQuantity}</span>
+                  <span className={`font-mono ${isLight ? 'text-[#1C1917]' : 'text-slate-200'}`}>{totalQuantity}</span>
                 </div>
-                <div className="flex justify-between border-t border-slate-900 pt-2 font-bold text-sm">
-                  <span className="text-slate-200">Total à Valider :</span>
+                <div className={`flex justify-between border-t pt-2 font-bold text-sm ${
+                  isLight ? 'border-[#E7E5E4]' : 'border-slate-900/60'
+                }`}>
+                  <span className={isLight ? 'text-[#1C1917]' : 'text-slate-200'}>Total à Valider :</span>
                   <span className="font-mono brand-accent-text">{formatPrice(cartTotal)}</span>
                 </div>
               </div>
@@ -777,21 +832,21 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
             onSubmit={validateDeliveryForm}
             className="flex-1 p-4 flex flex-col font-sans max-w-md mx-auto w-full relative z-10 select-none pb-20"
           >
-            <div className="flex items-center gap-2 pb-4 border-b border-slate-900 mb-4">
+            <div className={`flex items-center gap-2 pb-4 border-b mb-4 ${isLight ? 'border-[#E7E5E4]' : 'border-slate-900/60'}`}>
               <button 
                 type="button"
                 onClick={() => setClientStep('CHOOSE_MODE')}
-                className="p-1.5 hover:bg-slate-900/60 text-slate-400 rounded-lg cursor-pointer"
+                className={`p-1.5 rounded-lg cursor-pointer ${isLight ? 'hover:bg-[#E7E5E4] text-[#78716C]' : 'hover:bg-slate-900/60 text-slate-400'}`}
               >
                 <ChevronLeft size={16} />
               </button>
-              <h2 className="text-sm font-extrabold text-slate-200">Saisie des informations</h2>
+              <h2 className={`text-sm font-extrabold ${isLight ? 'text-[#1C1917]' : 'text-slate-200'}`}>Saisie des informations</h2>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-4 pr-1">
               {/* WhatsApp Field (Required) */}
               <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 font-semibold uppercase tracking-wider flex items-center justify-between">
+                <label className={`text-xs font-semibold uppercase tracking-wider flex items-center justify-between ${isLight ? 'text-[#78716C]' : 'text-slate-400'}`}>
                   <span>WhatsApp N° (Obligatoire)</span>
                   <span className="text-[10px] text-rose-500 italic">* requis</span>
                 </label>
@@ -801,19 +856,27 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
                   placeholder="+221 77 123 45 67"
                   value={deliveryWhatsApp}
                   onChange={(e) => setDeliveryWhatsApp(e.target.value)}
-                  className="w-full bg-slate-950/65 border border-slate-800 text-xs text-slate-200 rounded-xl px-4 py-3 placeholder-slate-600 focus:outline-none focus:border-rose-500 transition-all font-medium"
+                  className={`w-full text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-all font-medium ${
+                    isLight 
+                      ? 'bg-[#F5F5F4] border border-[#E7E5E4] text-[#1C1917] placeholder-[#A8A29E]' 
+                      : 'bg-slate-950/65 border border-slate-800 text-slate-200 placeholder-slate-600'
+                  }`}
                 />
               </div>
 
               {/* Customer Name (Optional) */}
               <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Votre Nom (Optionnel)</label>
+                <label className={`text-xs font-semibold uppercase tracking-wider ${isLight ? 'text-[#78716C]' : 'text-slate-400'}`}>Votre Nom (Optionnel)</label>
                 <input 
                   type="text"
                   placeholder="Ex. Mamadou Sow"
                   value={deliveryName}
                   onChange={(e) => setDeliveryName(e.target.value)}
-                  className="w-full bg-slate-950/65 border border-slate-800 text-xs text-slate-200 rounded-xl px-4 py-3 placeholder-slate-600 focus:outline-none focus:border-rose-500 transition-all font-medium"
+                  className={`w-full text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-all font-medium ${
+                    isLight 
+                      ? 'bg-[#F5F5F4] border border-[#E7E5E4] text-[#1C1917] placeholder-[#A8A29E]' 
+                      : 'bg-slate-950/65 border border-slate-800 text-slate-200 placeholder-slate-600'
+                  }`}
                 />
               </div>
 
@@ -835,13 +898,17 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
                   placeholder="Rue, Immeuble, Étage, Repères à Dakar..."
                   value={deliveryAddress}
                   onChange={(e) => setDeliveryAddress(e.target.value)}
-                  className="w-full bg-slate-950/65 border border-slate-800 text-xs text-slate-200 rounded-xl px-4 py-3 placeholder-slate-600 focus:outline-none focus:border-rose-500 transition-all font-medium"
+                  className={`w-full text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-all font-medium ${
+                    isLight 
+                      ? 'bg-[#F5F5F4] border border-[#E7E5E4] text-[#1C1917] placeholder-[#A8A29E]' 
+                      : 'bg-slate-950/65 border border-slate-800 text-slate-200 placeholder-slate-600 font-medium'
+                  }`}
                 />
               </div>
 
               {/* Delivery Notes (Optional, max 300) */}
               <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 font-semibold uppercase tracking-wider flex items-center justify-between">
+                <label className={`text-xs font-semibold uppercase tracking-wider flex items-center justify-between ${isLight ? 'text-[#78716C]' : 'text-slate-400'}`}>
                   <span>Instructions partculières</span>
                   <span className="text-[9px] text-slate-600 font-mono">{deliveryNotes.length}/300</span>
                 </label>
@@ -851,7 +918,11 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
                   placeholder="Ex. Piment à part, appeler l'interphone..."
                   value={deliveryNotes}
                   onChange={(e) => setDeliveryNotes(e.target.value)}
-                  className="w-full bg-slate-950/65 border border-slate-800 text-xs text-slate-200 rounded-xl px-4 py-3 placeholder-slate-600 focus:outline-none focus:border-rose-500 transition-all font-medium animate-none"
+                  className={`w-full text-xs rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500 transition-all font-medium ${
+                    isLight 
+                      ? 'bg-[#F5F5F4] border border-[#E7E5E4] text-[#1C1917] placeholder-[#A8A29E]' 
+                      : 'bg-slate-950/65 border border-slate-800 text-slate-200 placeholder-slate-600 font-medium animate-none'
+                  }`}
                 />
               </div>
             </div>
@@ -869,8 +940,8 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
             )}
 
             {/* Summation Total footer action */}
-            <div className="pt-4 border-t border-slate-900 space-y-3">
-              <div className="flex justify-between items-center text-xs text-slate-400 font-medium">
+            <div className={`pt-4 border-t space-y-3 ${isLight ? 'border-[#E7E5E4]' : 'border-slate-900'}`}>
+              <div className={`flex justify-between items-center text-xs font-semibold ${isLight ? 'text-[#78716C]' : 'text-slate-400'}`}>
                 <span>Total de votre dîner :</span>
                 <span className="font-mono brand-accent-text font-bold text-sm">{formatPrice(cartTotal)}</span>
               </div>
@@ -1228,7 +1299,9 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
 
       {/* FLOAT NAVIGATION BAR FOOTER (Only shown on MENU / CART pages) */}
       {(clientStep === 'MENU' || clientStep === 'CART') && (
-        <div className="absolute bottom-0 inset-x-0 bg-slate-950/90 backdrop-blur-md border-t border-slate-900/80 p-4 z-40">
+        <div className={`absolute bottom-0 inset-x-0 backdrop-blur-md border-t p-4 z-40 transition-colors ${
+          isLight ? 'bg-[#FAFAF9]/95 border-[#E7E5E4]' : 'bg-slate-950/90 border-slate-900/80'
+        }`}>
           <div className="max-w-md mx-auto flex items-center justify-between gap-4">
             
             {/* Left side: Switch views */}
@@ -1236,7 +1309,9 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
               <button 
                 onClick={() => setClientStep('MENU')}
                 className={`flex flex-col items-center gap-1 py-1 px-3.5 rounded-xl transition-all cursor-pointer ${
-                  clientStep === 'MENU' ? 'text-rose-400 bg-slate-900' : 'text-slate-500 hover:text-slate-300'
+                  clientStep === 'MENU' 
+                    ? isLight ? 'text-rose-600 bg-[#E7E5E4]' : 'text-rose-450 bg-slate-900' 
+                    : isLight ? 'text-[#78716C] hover:text-[#1C1917]' : 'text-slate-500 hover:text-slate-350'
                 }`}
               >
                 <Compass size={16} />
@@ -1246,7 +1321,9 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
               <button 
                 onClick={() => setClientStep('CART')}
                 className={`flex flex-col items-center gap-1 py-1 px-3.5 rounded-xl transition-all relative cursor-pointer ${
-                  clientStep === 'CART' ? 'text-rose-400 bg-slate-900' : 'text-slate-500 hover:text-slate-300'
+                  clientStep === 'CART' 
+                    ? isLight ? 'text-rose-600 bg-[#E7E5E4]' : 'text-rose-450 bg-slate-900' 
+                    : isLight ? 'text-[#78716C] hover:text-[#1C1917]' : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
                 <ShoppingBag size={16} />

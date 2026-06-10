@@ -125,7 +125,7 @@ export const DEFAULT_CONFIG: RestaurantConfig = {
   isOpen: true,
   sections: INITIAL_SECTIONS,
   style: {
-    displayMode: 'dark',
+    displayMode: 'light',
     accentColor: '#10b981', // Elegant Emerald
     fontFamily: 'font-serif', // Playfair Serif
     heroBannerUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200',

@@ -61,11 +61,7 @@ function MerchantDashboardContent() {
 
   return (
     <div 
-      className={`h-screen w-screen overflow-hidden flex font-sans transition-colors duration-200 ${
-        isLight 
-          ? 'bg-[#FAFAF9] text-[#1C1917]' 
-          : 'bg-[#0a0a0a] text-zinc-300'
-      }`}
+      className="h-screen w-screen overflow-hidden flex font-sans bg-[#FAFAF9] text-[#1C1917]"
     >
       
       {/* 1. COLLAPSIBLE APPLE-STYLE SIDEBAR */}
@@ -92,9 +88,7 @@ function MerchantDashboardContent() {
             
             {/* Zone gauche: BuilderPanel (adjustable width layout) */}
             <div 
-              className={`h-full shrink-0 flex flex-col overflow-hidden relative ${
-                isLight ? 'border-r border-[#E7E5E4]' : 'border-r border-zinc-800'
-              }`}
+              className="h-full shrink-0 flex flex-col overflow-hidden relative border-r border-[#E7E5E4]"
               style={{ width: `${panelWidthPercent}%`, minWidth: '320px', maxWidth: '640px' }}
             >
               <BuilderPanel />
@@ -104,26 +98,18 @@ function MerchantDashboardContent() {
             <div 
               onPointerDown={startDragging}
               onClick={handleSeparatorClick}
-              className={`w-1.5 hover:w-2 hover:bg-emerald-500/30 h-full shrink-0 cursor-col-resize transition-all flex items-center justify-center relative group z-35 ${
-                isLight 
-                  ? 'bg-[#F5F5F4] border-x border-[#E7E5E4]' 
-                  : 'bg-[#0d0d0d] border-x border-zinc-900/40'
-              }`}
+              className="w-1.5 hover:w-2 hover:bg-emerald-500/30 h-full shrink-0 cursor-col-resize transition-all flex items-center justify-center relative group z-35 bg-[#F5F5F4] border-x border-[#E7E5E4]"
               title="Faites glisser pour redimensionner le split-screen"
             >
               {/* Floating resize indicator */}
               <div 
-                className={`w-[1.5px] h-10 rounded-full group-hover:bg-emerald-500 ${
-                  isLight ? 'bg-stone-300' : 'bg-zinc-700'
-                }`}
+                className="w-[1.5px] h-10 rounded-full group-hover:bg-emerald-500 bg-stone-300"
               ></div>
             </div>
 
             {/* Zone droite: MobilePreview (Visual dominant) */}
             <div 
-              className={`flex-1 h-full min-w-0 transition-colors duration-200 ${
-                isLight ? 'bg-[#F5F5F4]' : 'bg-[#121212]/30'
-              }`}
+              className="flex-1 h-full min-w-0 bg-[#F5F5F4]"
             >
               <MobilePreview />
             </div>

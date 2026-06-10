@@ -106,7 +106,7 @@ export default function CaissePage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row bg-[#080808] select-none overflow-hidden h-[calc(100vh-1px)]">
+    <div className="flex-1 flex flex-col lg:flex-row bg-[#F5F5F4] select-none overflow-hidden h-[calc(100vh-1px)]">
       
       {/* Receipts Drawer Overlays */}
       <AnimatePresence>
@@ -215,24 +215,24 @@ export default function CaissePage() {
       </AnimatePresence>
 
       {/* Grid Zone */}
-      <div className="flex-1 p-5 md:p-6 overflow-y-auto space-y-5 flex flex-col h-full bg-[#0a0a0a]">
+      <div className="flex-1 p-5 md:p-6 overflow-y-auto space-y-5 flex flex-col h-full bg-[#F5F5F4]">
         {/* Search & Header */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           <div>
-            <span className="text-xs font-semibold text-emerald-500 uppercase tracking-wider font-sans">Caisse Physique Comptoir</span>
-            <h1 className="text-2xl font-extrabold text-zinc-100 tracking-tight flex items-center gap-2 font-sans">
+            <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider font-sans">Caisse Physique Comptoir</span>
+            <h1 className="text-2xl font-extrabold text-[#1C1917] tracking-tight flex items-center gap-2 font-sans">
               Module Caisse POS <Calculator className="text-emerald-500" size={20} />
             </h1>
           </div>
 
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-2.5 text-zinc-500" size={15} />
+            <Search className="absolute left-3 top-2.5 text-stone-400" size={15} />
             <input 
               type="text"
               placeholder="Rechercher un plat..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-zinc-950/60 border border-zinc-800 text-xs rounded-xl pl-9 pr-4 py-2.5 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition-all font-sans"
+              className="w-full bg-white border border-[#E7E5E4] text-xs rounded-xl pl-9 pr-4 py-2.5 text-[#1C1917] placeholder-stone-400 focus:outline-none focus:border-emerald-500 transition-all font-sans shadow-xs"
             />
           </div>
         </div>
@@ -243,8 +243,8 @@ export default function CaissePage() {
             onClick={() => setSelectedCategory('ALL')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer font-sans border ${
               selectedCategory === 'ALL' 
-                ? 'bg-zinc-800 text-zinc-100 border-zinc-700' 
-                : 'text-zinc-450 hover:text-zinc-200 border-transparent hover:bg-zinc-900/60'
+                ? 'bg-white text-emerald-600 border-[#E7E5E4] shadow-xs' 
+                : 'text-stone-500 hover:text-[#1C1917] border-transparent hover:bg-white/50'
             }`}
           >
             Tous les plats
@@ -255,8 +255,8 @@ export default function CaissePage() {
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all whitespace-nowrap cursor-pointer font-sans border ${
                 selectedCategory === cat.id 
-                  ? 'bg-zinc-800 text-zinc-100 border-zinc-700' 
-                  : 'text-zinc-450 hover:text-zinc-200 border-transparent hover:bg-zinc-900/60'
+                  ? 'bg-white text-emerald-600 border-[#E7E5E4] shadow-xs' 
+                  : 'text-stone-500 hover:text-[#1C1917] border-transparent hover:bg-white/50'
               }`}
             >
               {cat.name}
@@ -272,31 +272,31 @@ export default function CaissePage() {
                 key={item.id}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => addToCart(item)}
-                className="bg-zinc-900/30 hover:bg-zinc-900/60 transition-all border border-zinc-805/80 rounded-2xl p-3 flex gap-3 cursor-pointer items-center relative overflow-hidden group hover:border-zinc-800"
+                className="bg-white hover:bg-[#FAFAF9] transition-all border border-[#E7E5E4] rounded-2xl p-3 flex gap-3 cursor-pointer items-center relative overflow-hidden group hover:border-emerald-300 shadow-xs"
               >
                 {/* Product thumbnail */}
                 <img 
                   src={item.imageUrl} 
                   alt={item.name} 
-                  className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-zinc-800 group-hover:scale-105 transition-transform"
+                  className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-[#E7E5E4] group-hover:scale-105 transition-transform"
                 />
 
                 {/* Product Label */}
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-bold text-zinc-100 truncate font-sans">{item.name}</h4>
-                  <p className="text-[11px] text-zinc-400 font-mono mt-0.5">{formatPrice(item.price)}</p>
-                  <p className="text-[10px] text-zinc-500 truncate font-sans">{item.description}</p>
+                  <h4 className="text-xs font-extrabold text-[#1C1917] truncate font-sans">{item.name}</h4>
+                  <p className="text-[11px] text-stone-700 font-semibold font-mono mt-0.5">{formatPrice(item.price)}</p>
+                  <p className="text-[10px] text-stone-450 truncate font-sans">{item.description}</p>
                 </div>
 
                 {/* Micro badge indicator */}
-                <div className="w-6 h-6 rounded-lg bg-zinc-950 flex items-center justify-center text-zinc-500 group-hover:bg-emerald-550/15 group-hover:text-emerald-400 select-none">
+                <div className="w-6 h-6 rounded-lg bg-[#F5F5F4] flex items-center justify-center text-stone-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 border border-[#E7E5E4] group-hover:border-emerald-250 select-none transition-all">
                   <Plus size={12} />
                 </div>
               </motion.div>
             ))}
 
             {filteredItems.length === 0 && (
-              <div className="col-span-1 sm:col-span-2 xl:col-span-3 py-16 text-center text-zinc-550 font-sans">
+              <div className="col-span-1 sm:col-span-2 xl:col-span-3 py-16 text-center text-stone-500 font-sans">
                 Aucun plat disponible ne correspond aux critères de recherche.
               </div>
             )}
@@ -305,13 +305,13 @@ export default function CaissePage() {
       </div>
 
       {/* Checkout Sidebar panel */}
-      <div className="w-full lg:w-96 bg-[#0c0c0c] border-t lg:border-t-0 lg:border-l border-zinc-900 p-5 flex flex-col shrink-0">
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
+      <div className="w-full lg:w-96 bg-white border-t lg:border-t-0 lg:border-l border-[#E7E5E4] p-5 flex flex-col shrink-0">
+        <div className="flex items-center justify-between pb-4 border-b border-[#E7E5E4]">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="text-emerald-450" size={18} />
-            <span className="font-bold text-sm text-zinc-200 font-sans">{"Panier d'Enregistrement"}</span>
+            <ShoppingBag className="text-emerald-600" size={18} />
+            <span className="font-bold text-sm text-[#1C1917] font-sans">{"Panier d'Enregistrement"}</span>
           </div>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-zinc-900 text-emerald-400 border border-emerald-500/10">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono bg-[#F5F5F4] text-emerald-600 border border-emerald-200">
             {cart.reduce((sum, i) => sum + i.quantity, 0)} plats
           </span>
         </div>
@@ -319,24 +319,24 @@ export default function CaissePage() {
         {/* Scrollable list of selected items */}
         <div className="flex-1 overflow-y-auto py-4 space-y-3">
           {cart.map(item => (
-            <div key={item.id} className="bg-zinc-900/30 border border-zinc-800/80 rounded-xl p-3 flex justify-between items-center gap-3">
+            <div key={item.id} className="bg-[#FAFAF9] border border-[#E7E5E4] rounded-xl p-3 flex justify-between items-center gap-3 font-sans">
               <div className="flex-1 min-w-0">
-                <h5 className="text-xs font-semibold text-zinc-200 truncate font-sans">{item.name}</h5>
-                <span className="text-[10px] text-zinc-500 font-mono italic">{formatPrice(item.price)} la part</span>
+                <h5 className="text-xs font-bold text-[#1C1917] truncate">{item.name}</h5>
+                <span className="text-[10px] text-stone-500 font-mono italic">{formatPrice(item.price)} la part</span>
               </div>
 
               {/* Adjust qty panel */}
-              <div className="flex items-center bg-[#070707] border border-zinc-800 rounded-lg p-0.5">
+              <div className="flex items-center bg-white border border-[#E7E5E4] rounded-lg p-0.5">
                 <button 
                   onClick={() => updateQty(item.id, -1)}
-                  className="w-5 h-5 flex items-center justify-center rounded text-zinc-500 hover:text-zinc-100 cursor-pointer"
+                  className="w-5 h-5 flex items-center justify-center rounded text-stone-400 hover:text-[#1C1917] cursor-pointer"
                 >
                   <Minus size={10} />
                 </button>
-                <span className="text-xs font-mono font-bold px-2 text-zinc-200">{item.quantity}</span>
+                <span className="text-xs font-mono font-bold px-2 text-[#1C1917]">{item.quantity}</span>
                 <button 
                   onClick={() => updateQty(item.id, 1)}
-                  className="w-5 h-5 flex items-center justify-center rounded text-zinc-500 hover:text-zinc-100 cursor-pointer"
+                  className="w-5 h-5 flex items-center justify-center rounded text-stone-400 hover:text-[#1C1917] cursor-pointer"
                 >
                   <Plus size={10} />
                 </button>
@@ -345,7 +345,7 @@ export default function CaissePage() {
               {/* Delete */}
               <button 
                 onClick={() => removeFromCart(item.id)}
-                className="text-zinc-500 hover:text-red-400 cursor-pointer"
+                className="text-stone-400 hover:text-red-600 cursor-pointer"
               >
                 <Trash2 size={13} />
               </button>
@@ -353,27 +353,27 @@ export default function CaissePage() {
           ))}
 
           {cart.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-500 font-sans">
-              <Calculator className="text-zinc-800 mb-2" size={32} />
-              <span className="text-xs font-medium">Panier comptoir vide</span>
-              <p className="text-[10px] text-zinc-650 mt-1 max-w-[200px]">Cliquez sur les plats de la grille pour les ajouter directement au ticket.</p>
+            <div className="h-full flex flex-col items-center justify-center text-center p-6 text-stone-400 font-sans">
+              <Calculator className="text-stone-300 mb-2" size={32} />
+              <span className="text-xs font-bold text-stone-750">Panier comptoir vide</span>
+              <p className="text-[10px] text-stone-400 mt-1 max-w-[200px]">Cliquez sur les plats de la grille pour les ajouter directement au ticket.</p>
             </div>
           )}
         </div>
 
         {/* Payment selector and totals */}
         {cart.length > 0 && (
-          <div className="pt-4 border-t border-zinc-900 space-y-4">
+          <div className="pt-4 border-t border-[#E7E5E4] space-y-4">
             <div className="space-y-1.5 font-sans">
-              <label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Moyen de paiement</label>
+              <label className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Moyen de paiement</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('CASH')}
                   className={`py-2 px-3 text-xs rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
                     paymentMethod === 'CASH'
-                      ? 'bg-emerald-500/10 text-emerald-450 border-emerald-500/30'
-                      : 'bg-[#0d0d0d] text-zinc-450 border-transparent hover:text-zinc-200'
+                      ? 'bg-emerald-50 text-emerald-600 border-emerald-300 font-bold shadow-xs'
+                      : 'bg-[#F5F5F4] text-stone-505 border-transparent hover:bg-[#E7E5E4] hover:text-[#1C1917]'
                   }`}
                 >
                   <Coins size={12} /> Espèces
@@ -384,8 +384,8 @@ export default function CaissePage() {
                   onClick={() => setPaymentMethod('CARD')}
                   className={`py-2 px-3 text-xs rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
                     paymentMethod === 'CARD'
-                      ? 'bg-emerald-500/10 text-emerald-450 border-emerald-500/30'
-                      : 'bg-[#0d0d0d] text-zinc-450 border-transparent hover:text-zinc-200'
+                      ? 'bg-emerald-50 text-emerald-600 border-emerald-300 font-bold shadow-xs'
+                      : 'bg-[#F5F5F4] text-stone-505 border-transparent hover:bg-[#E7E5E4] hover:text-[#1C1917]'
                   }`}
                 >
                   <CreditCard size={12} /> Carte
@@ -394,25 +394,25 @@ export default function CaissePage() {
             </div>
 
             {/* Total count details */}
-            <div className="bg-zinc-900/30 border border-zinc-800 rounded-xl p-3.5 space-y-1.5">
-              <div className="flex justify-between items-center text-xs text-zinc-400 font-sans">
+            <div className="bg-[#FAFAF9] border border-[#E7E5E4] rounded-xl p-3.5 space-y-1.5 shadow-xs">
+              <div className="flex justify-between items-center text-xs text-stone-505 font-sans">
                 <span>{"Nombre d'articles :"}</span>
-                <span className="font-mono font-medium">{cart.reduce((sum, i) => sum + i.quantity, 0)}</span>
+                <span className="font-mono font-semibold">{cart.reduce((sum, i) => sum + i.quantity, 0)}</span>
               </div>
-              <div className="flex justify-between items-center text-xs text-zinc-400 font-sans">
+              <div className="flex justify-between items-center text-xs text-stone-505 font-sans">
                 <span>TVA (18%) :</span>
-                <span className="font-mono font-medium">{formatPrice(Math.round(totalPrice * 0.18))} (incluse)</span>
+                <span className="font-mono font-semibold">{formatPrice(Math.round(totalPrice * 0.18))} (incluse)</span>
               </div>
-              <div className="flex justify-between items-center pt-2 border-t border-zinc-800/60 font-sans">
-                <span className="text-xs font-bold text-zinc-250">Total à payer :</span>
-                <span className="text-base font-extrabold text-emerald-450 font-mono">{formatPrice(totalPrice)}</span>
+              <div className="flex justify-between items-center pt-2 border-t border-[#E7E5E4]/80 font-sans">
+                <span className="text-xs font-bold text-stone-700">Total à payer :</span>
+                <span className="text-base font-extrabold text-[#1C1917] font-mono">{formatPrice(totalPrice)}</span>
               </div>
             </div>
 
             {/* Main checkout trigger */}
             <button
               onClick={handleCheckout}
-              className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-semibold text-xs tracking-wide shadow-lg shadow-emerald-950/20 hover:shadow-emerald-950/30 transition-all cursor-pointer active:scale-[0.99] flex items-center justify-center gap-2 font-sans"
+              className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs tracking-wide shadow-xs hover:shadow transition-all cursor-pointer active:scale-[0.99] flex items-center justify-center gap-2 font-sans"
             >
               <Sparkles size={14} />
               Encaisser et Facturer

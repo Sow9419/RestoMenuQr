@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from 'motion/react';
 export default function CollapsibleSidebar() {
   const { activeTab, setActiveTab, config, orders } = useResto();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const isLight = config?.style?.displayMode === 'light';
+  const isLight = true; // Always warm-light theme for merchant panel
 
   // Count pending or preparing orders
   const activeOrdersCount = orders.filter(

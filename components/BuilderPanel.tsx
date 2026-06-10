@@ -215,19 +215,13 @@ export default function BuilderPanel() {
     }
   };
 
-  const isLight = config?.style?.displayMode === 'light';
+  const isLight = true; // Always light theme for merchant panel
 
   return (
-    <div className={`flex-1 flex flex-col font-sans relative overflow-hidden h-full transition-colors duration-200 ${
-      isLight 
-        ? 'bg-[#FAFAF9] text-[#1C1917]' 
-        : 'bg-[#0a0a0a] text-zinc-300'
-    }`}>
+    <div className="flex-1 flex flex-col font-sans relative overflow-hidden h-full bg-[#FAFAF9] text-[#1C1917]">
 
       {/* Sub tabs header */}
-      <div className={`grid grid-cols-4 border-b shrink-0 transition-colors duration-200 ${
-        isLight ? 'border-[#E7E5E4] bg-[#F5F5F4]' : 'border-zinc-800 bg-[#0d0d0d]'
-      }`}>
+      <div className="grid grid-cols-4 border-b shrink-0 border-[#E7E5E4] bg-[#F5F5F4]">
         {[
           { id: 'SECTIONS', label: 'Sections', icon: Layers },
           { id: 'STYLE', label: 'Style', icon: Paintbrush },
@@ -239,14 +233,10 @@ export default function BuilderPanel() {
             <button
               key={subTab.id}
               onClick={() => setActiveSubTab(subTab.id as any)}
-              className={`py-4 px-1.5 flex flex-col sm:flex-row items-center justify-center gap-1.5 text-[11px] sm:text-xs font-extrabold border-b-2 cursor-pointer transition-all ${
+              className={`py-4 px-1.5 flex flex-col sm:flex-row items-center justify-center gap-1.5 text-[11px] sm:text-xs font-bold border-b-2 cursor-pointer transition-all ${
                 isActive 
-                  ? isLight
-                    ? 'border-emerald-500 text-emerald-600 bg-[#FAFAF9]'
-                    : 'border-emerald-500 text-emerald-400 bg-zinc-950/40' 
-                  : isLight
-                    ? 'border-transparent text-stone-500 hover:text-stone-800'
-                    : 'border-transparent text-zinc-400 hover:text-zinc-200'
+                  ? 'border-emerald-500 text-emerald-650 bg-[#FAFAF9]' 
+                  : 'border-transparent text-[#78716C] hover:text-[#1C1917]'
               }`}
             >
               <subTab.icon size={12} className={isActive ? 'text-emerald-500' : ''} />
@@ -265,24 +255,24 @@ export default function BuilderPanel() {
         {activeSubTab === 'SECTIONS' && (
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-bold text-slate-200">Dispositions du Menu</h3>
-              <p className="text-[11px] text-slate-500 mt-0.5">{"Activez, désactivez ou réordonnez l'importance des sections de votre carte client d'un clic."}</p>
+              <h3 className="text-sm font-bold text-[#1C1917]">Dispositions du Menu</h3>
+              <p className="text-[11px] text-[#78716C] mt-0.5">{"Activez, désactvez ou réordonnez l'importance des sections de votre carte client d'un clic."}</p>
             </div>
 
             <div className="space-y-2">
               {config.sections.map((section, idx) => (
                 <div 
                   key={section.id} 
-                  className={`bg-zinc-900/30 border rounded-2xl p-3.5 flex items-center justify-between gap-4 transition-all ${
-                    section.enabled ? 'border-zinc-850' : 'border-zinc-900 opacity-50'
+                  className={`bg-[#F5F5F4] border rounded-2xl p-3.5 flex items-center justify-between gap-4 transition-all ${
+                    section.enabled ? 'border-[#E7E5E4]' : 'border-stone-200/50 opacity-40'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     {/* Status inline indicator LED */}
-                    <span className={`w-2 h-2 rounded-full ${section.enabled ? 'bg-emerald-500' : 'bg-zinc-800'}`}></span>
+                    <span className={`w-2 h-2 rounded-full ${section.enabled ? 'bg-emerald-500' : 'bg-stone-300'}`}></span>
                     <div className="text-left">
-                      <h4 className="text-xs font-bold text-zinc-200">{section.label}</h4>
-                      <p className="text-[10px] text-zinc-500 font-mono">ID: {section.name}</p>
+                      <h4 className={`text-xs font-bold ${section.enabled ? 'text-[#1C1917]' : 'text-[#78716C]'}`}>{section.label}</h4>
+                      <p className="text-[10px] text-stone-400 font-mono">ID: {section.name}</p>
                     </div>
                   </div>
 
@@ -291,7 +281,7 @@ export default function BuilderPanel() {
                     <button
                       onClick={() => handleMoveSection(idx, 'UP')}
                       disabled={idx === 0}
-                      className="w-7 h-7 bg-zinc-950 border border-zinc-850 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-105 rounded-lg flex items-center justify-center cursor-pointer transition-colors disabled:opacity-20"
+                      className="w-7 h-7 bg-white border border-[#E7E5E4] hover:bg-[#F5F5F4] text-stone-605 rounded-lg flex items-center justify-center cursor-pointer transition-colors disabled:opacity-20"
                       title="Monter la section"
                     >
                       <ArrowUp size={12} />
@@ -299,7 +289,7 @@ export default function BuilderPanel() {
                     <button
                       onClick={() => handleMoveSection(idx, 'DOWN')}
                       disabled={idx === config.sections.length - 1}
-                      className="w-7 h-7 bg-zinc-950 border border-zinc-850 hover:bg-zinc-900 text-zinc-400 hover:text-zinc-105 rounded-lg flex items-center justify-center cursor-pointer transition-colors disabled:opacity-20"
+                      className="w-7 h-7 bg-white border border-[#E7E5E4] hover:bg-[#F5F5F4] text-stone-605 rounded-lg flex items-center justify-center cursor-pointer transition-colors disabled:opacity-20"
                       title="Descendre la section"
                     >
                       <ArrowDown size={12} />
@@ -308,10 +298,10 @@ export default function BuilderPanel() {
                     {/* Enable ON/OFF slider */}
                     <button
                       onClick={() => handleToggleSection(section.id)}
-                      className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md cursor-pointer transition-all ${
+                      className={`px-2.5 py-1 text-[10px] font-extrabold rounded-md cursor-pointer transition-all border ${
                         section.enabled 
-                          ? 'bg-emerald-500/15 text-emerald-450 border border-emerald-500/20' 
-                          : 'bg-zinc-900 text-zinc-550 border border-zinc-800'
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-250' 
+                          : 'bg-[#F5F5F4] text-stone-400 border-stone-200'
                       }`}
                     >
                       {section.enabled ? 'VISIBLE' : 'MASQUÉ'}
@@ -331,7 +321,7 @@ export default function BuilderPanel() {
             
             {/* Display Mode Theme selector */}
             <div className="space-y-1.5 text-left">
-              <label className="text-xs font-bold text-zinc-405 uppercase tracking-wider">Mode thématique global</label>
+              <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">Mode thématique global</label>
               <div className="grid grid-cols-2 gap-2">
                 {['light', 'dark'].map((mode) => (
                   <button
@@ -339,8 +329,8 @@ export default function BuilderPanel() {
                     onClick={() => handleStyleChange('displayMode', mode)}
                     className={`py-2 px-3 text-xs rounded-xl font-bold border transition-all cursor-pointer ${
                       config.style.displayMode === mode
-                        ? 'bg-emerald-500/15 text-emerald-450 border-emerald-500/30'
-                        : 'bg-zinc-900/50 text-zinc-500 border-transparent hover:text-zinc-200'
+                        ? 'bg-emerald-50 text-emerald-600 border-emerald-500/30 font-bold'
+                        : 'bg-[#F5F5F4] text-stone-500 border-transparent hover:text-[#1C1917]'
                     }`}
                   >
                     {mode === 'light' ? 'Mode Lumineux' : 'Mode Sombre'}
@@ -351,13 +341,13 @@ export default function BuilderPanel() {
 
             {/* Accent color picker */}
             <div className="space-y-2 text-left">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">{"Teinte d'Accentuation du Restaurant"}</label>
+              <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">{"Teinte d'Accentuation du Restaurant"}</label>
               <div className="flex flex-wrap gap-2.5">
                 {ACCENT_COLORS.map(c => (
                   <button
                     key={c.color}
                     onClick={() => handleStyleChange('accentColor', c.color)}
-                    className="w-8 h-8 rounded-full border border-zinc-950 flex items-center justify-center relative cursor-pointer group shadow"
+                    className="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center relative cursor-pointer group shadow"
                     style={{ backgroundColor: c.color }}
                     title={c.name}
                   >
@@ -379,11 +369,11 @@ export default function BuilderPanel() {
 
             {/* Fonts Selection */}
             <div className="space-y-1.5 text-left">
-              <label className="text-xs font-bold text-zinc-405 uppercase tracking-wider">{"Police d'écriture Curatée"}</label>
+              <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">{"Police d'écriture Curatée"}</label>
               <select
                 value={config.style.fontFamily}
                 onChange={(e) => handleStyleChange('fontFamily', e.target.value)}
-                className="w-full bg-zinc-900/50 border border-zinc-800 text-xs rounded-xl px-4 py-3 text-zinc-200 focus:outline-none focus:border-emerald-500 font-medium"
+                className="w-full bg-[#F5F5F4] border border-[#E7E5E4] text-xs rounded-xl px-4 py-3 text-[#1C1917] focus:outline-none focus:border-emerald-505 font-medium"
               >
                 {FONTS_LIST.map(f => (
                   <option key={f.id} value={f.id}>{f.name}</option>
@@ -393,7 +383,7 @@ export default function BuilderPanel() {
 
             {/* Compact vs Comfortable spacing */}
             <div className="space-y-1.5 text-left">
-              <label className="text-xs font-bold text-zinc-405 uppercase tracking-wider">{"Densité d'Affichage des Plats"}</label>
+              <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">{"Densité d'Affichage des Plats"}</label>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: 'compact', name: 'Compacted (Espace serré)' },
@@ -404,8 +394,8 @@ export default function BuilderPanel() {
                     onClick={() => handleStyleChange('density', den.id)}
                     className={`py-2 px-3 text-xs rounded-xl font-bold border transition-all cursor-pointer ${
                       config.style.density === den.id
-                        ? 'bg-emerald-500/15 text-emerald-450 border-emerald-500/30'
-                        : 'bg-zinc-900/50 text-zinc-500 border-transparent hover:text-zinc-200'
+                        ? 'bg-emerald-50 text-emerald-600 border-emerald-500/30'
+                        : 'bg-[#F5F5F4] text-stone-505 border-transparent hover:text-[#1C1917]'
                     }`}
                   >
                     {den.name}
@@ -416,12 +406,12 @@ export default function BuilderPanel() {
 
             {/* CURATED LIST of 20 BACKGROUNDS */}
             <div className="space-y-2 text-left">
-              <label className="text-xs font-bold text-zinc-405 uppercase tracking-wider">
+              <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">
                 Arrière-Plan du Menu Client (20 Options)
               </label>
-              <p className="text-[10px] text-zinc-500 leading-tight">{"Choisissez le fond de l'application parmi les 20 presets premium d'ambiance."}</p>
+              <p className="text-[10px] text-stone-450 leading-tight">{"Choisissez le fond de l'application parmi les 20 presets premium d'ambiance."}</p>
               
-              <div className="grid grid-cols-5 gap-2 pt-1">
+              <div className="grid grid-cols-5 gap-2 pt-1 font-sans">
                 {BACKGROUND_PRESETS.map((preset) => {
                   const isActive = config.style.backgroundImageUrl === preset.id;
                   return (
@@ -431,7 +421,7 @@ export default function BuilderPanel() {
                       className={`aspect-video rounded-lg border flex items-center justify-center relative overflow-hidden transition-all cursor-pointer hover:scale-105 active:scale-95 shadow ${
                         isActive 
                           ? 'border-emerald-500 scale-105 ring-2 ring-emerald-500/20' 
-                          : 'border-zinc-800'
+                          : 'border-[#E7E5E4]'
                       }`}
                       style={{ background: preset.preview }}
                       title={preset.name}
@@ -448,16 +438,17 @@ export default function BuilderPanel() {
             </div>
 
             {/* Glassmorphism toggle and overlays */}
-            <div className="space-y-4 pt-3 border-t border-zinc-800">
+            <div className="space-y-4 pt-3 border-t border-[#E7E5E4]">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-xs font-bold text-zinc-300">Floutage Verre Dépoli (Glassmorphism)</h4>
-                  <p className="text-[10px] text-zinc-500 mt-0.5 font-light font-sans">Ajoute un effet verrier satiné sophistiqué sur les cartes des plats.</p>
+                  <h4 className="text-xs font-bold text-[#1C1917]">Floutage Verre Dépoli (Glassmorphism)</h4>
+                  <p className="text-[10px] text-stone-400 mt-0.5 font-light font-sans">Ajoute un effet verrier satiné sophistiqué sur les cartes des plats.</p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handleStyleChange('glassmorphism', !config.style.glassmorphism)}
-                  className={`px-3 py-1 text-[10px] font-extrabold rounded bg-[#0d0d0d] border cursor-pointer ${
-                    config.style.glassmorphism ? 'text-emerald-400 border-emerald-500/10' : 'text-zinc-500 border-zinc-800'
+                  className={`px-3 py-1 text-[10px] font-extrabold rounded bg-[#F5F5F4] border cursor-pointer border-[#E7E5E4] ${
+                    config.style.glassmorphism ? 'text-emerald-600 border-emerald-500/30 bg-emerald-50' : 'text-stone-500 hover:text-stone-700'
                   }`}
                 >
                   {config.style.glassmorphism ? 'ACTIF' : 'INACTIF'}
@@ -466,7 +457,7 @@ export default function BuilderPanel() {
 
               {/* Background cover transparency */}
               <div className="space-y-1 text-left">
-                <div className="flex justify-between items-center text-xs text-zinc-400 font-sans">
+                <div className="flex justify-between items-center text-xs text-stone-505 font-sans">
                   <span>Densité du Voile de Fond</span>
                   <span className="font-mono">{config.style.overlayOpacity}%</span>
                 </div>
@@ -476,7 +467,7 @@ export default function BuilderPanel() {
                   max="90" 
                   value={config.style.overlayOpacity}
                   onChange={(e) => handleStyleChange('overlayOpacity', Number(e.target.value))}
-                  className="w-full accent-emerald-500 cursor-pointer h-1.5 bg-[#0d0d0d] rounded-lg appearance-none"
+                  className="w-full accent-emerald-500 cursor-pointer h-1.5 bg-[#E7E5E4] rounded-lg appearance-none"
                 />
               </div>
             </div>
@@ -492,30 +483,33 @@ export default function BuilderPanel() {
             
             {/* CATEGORIES SECTION */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-                <h4 className="text-xs font-extrabold text-zinc-300 uppercase tracking-widest">Catégories de Plats</h4>
+              <div className="flex items-center justify-between pb-2 border-b border-[#E7E5E4]">
+                <h4 className="text-xs font-extrabold text-[#1C1917] uppercase tracking-widest">Catégories de Plats</h4>
                 <button
+                  type="button"
                   onClick={handleOpenCatAdd}
-                  className="px-2 py-1 bg-emerald-500/15 text-emerald-450 hover:bg-emerald-500/25 border border-emerald-500/20 text-[10px] font-bold rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                  className="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100/50 border border-emerald-200 text-[10px] font-bold rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
                 >
-                  <Plus size={11} /> Ajouter
+                  <Plus size={11} /> Ajouter (Catégorie)
                 </button>
               </div>
 
               <div className="grid grid-cols-1 gap-2">
                 {config.categories.map(cat => (
-                  <div key={cat.id} className="bg-zinc-900/30 border border-zinc-800/80 rounded-xl p-3 flex justify-between items-center">
-                    <span className="text-xs font-bold text-zinc-200">{cat.name}</span>
+                  <div key={cat.id} className="bg-[#F5F5F4] border border-[#E7E5E4] rounded-xl p-3 flex justify-between items-center">
+                    <span className="text-xs font-bold text-[#1C1917]">{cat.name}</span>
                     <div className="flex items-center gap-1">
                       <button 
+                        type="button"
                         onClick={() => handleOpenCatEdit(cat)}
-                        className="p-1 hover:bg-zinc-800 rounded text-zinc-500 hover:text-zinc-200 cursor-pointer"
+                        className="p-1 hover:bg-[#E7E5E4] rounded-lg text-stone-500 hover:text-[#1C1917] cursor-pointer"
                       >
                         <Edit3 size={12} />
                       </button>
                       <button 
+                        type="button"
                         onClick={() => handleDeleteCategory(cat.id)}
-                        className="p-1 hover:bg-red-500/10 rounded text-zinc-500 hover:text-red-400 cursor-pointer"
+                        className="p-1 hover:bg-red-50 text-stone-500 hover:text-red-650 cursor-pointer"
                       >
                         <Trash2 size={12} />
                       </button>
@@ -526,12 +520,13 @@ export default function BuilderPanel() {
             </div>
 
             {/* ITEMS/DISHES SECTION */}
-            <div className="space-y-3 pt-3 border-t border-zinc-800">
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
-                <h4 className="text-xs font-extrabold text-zinc-300 uppercase tracking-widest">Catalogue des Plats</h4>
+            <div className="space-y-3 pt-3 border-t border-[#E7E5E4]">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E7E5E4]">
+                <h4 className="text-xs font-extrabold text-[#1C1917] uppercase tracking-widest">Catalogue des Plats</h4>
                 <button
+                  type="button"
                   onClick={handleOpenDishAdd}
-                  className="px-2 py-1 bg-emerald-500/15 text-emerald-450 hover:bg-emerald-500/25 border border-emerald-500/20 text-[10px] font-bold rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                  className="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100/50 border border-emerald-250 text-[10px] font-bold rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
                 >
                   <Plus size={11} /> Ajouter un plat
                 </button>
@@ -541,34 +536,36 @@ export default function BuilderPanel() {
                 {config.items.map(item => {
                   const cat = config.categories.find(c => c.id === item.categoryId);
                   return (
-                    <div key={item.id} className="bg-zinc-900/30 border border-zinc-800/80 p-3 rounded-2xl flex justify-between gap-4 items-center">
+                    <div key={item.id} className="bg-[#F5F5F4] border border-[#E7E5E4] p-3 rounded-2xl flex justify-between gap-4 items-center">
                       <div className="flex gap-3 items-center min-w-0">
                         <img 
                           src={item.imageUrl} 
                           alt={item.name} 
-                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-zinc-800"
+                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-[#E7E5E4]"
                         />
                         <div className="text-left min-w-0 font-sans">
-                          <h5 className="text-xs font-bold text-zinc-200 truncate">{item.name}</h5>
-                          <span className="text-[9px] text-zinc-500 font-medium bg-zinc-950 px-1.5 py-0.2 rounded mt-0.5 inline-block">
+                          <h5 className="text-xs font-bold text-[#1C1917] truncate">{item.name}</h5>
+                          <span className="text-[9px] text-[#78716C] font-semibold bg-[#E7E5E4] px-1.5 py-0.2 rounded mt-0.5 inline-block">
                             {cat?.name || 'Sans Catégorie'}
                           </span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <span className="font-mono text-xs font-semibold text-zinc-305">{item.price.toString().split(".")[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ")} {config.style.currency}</span>
+                        <span className="font-mono text-xs font-semibold text-[#1C1917]">{item.price.toString().split(".")[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ")} {config.style.currency}</span>
                         
                         <div className="flex items-center gap-1">
                           <button 
+                            type="button"
                             onClick={() => handleOpenDishEdit(item)}
-                            className="p-1.5 hover:bg-zinc-800 rounded-lg text-zinc-500 hover:text-zinc-200 cursor-pointer"
+                            className="p-1.5 hover:bg-[#E7E5E4] rounded-lg text-stone-500 hover:text-[#1C1917] cursor-pointer"
                           >
                             <Edit3 size={12} />
                           </button>
                           <button 
+                            type="button"
                             onClick={() => handleDeleteDish(item.id)}
-                            className="p-1.5 hover:bg-red-500/10 rounded-lg text-zinc-500 hover:text-red-400 cursor-pointer"
+                            className="p-1.5 hover:bg-red-50 rounded-lg text-stone-505 hover:text-red-600 cursor-pointer"
                           >
                             <Trash2 size={12} />
                           </button>
@@ -690,46 +687,46 @@ export default function BuilderPanel() {
       {/* DIALOG CHIPS: CATEGORY MODAL */}
       {/* ======================================= */}
       {showCatModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center z-50 p-4 font-sans text-xs">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 font-sans text-xs">
           <motion.div 
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-zinc-950 text-zinc-100 rounded-2xl border border-zinc-800 p-5 max-w-sm w-full space-y-4 shadow-xl text-left"
+            className="bg-white text-[#1C1917] rounded-2xl border border-[#E7E5E4] p-5 max-w-sm w-full space-y-4 shadow-xl text-left"
           >
-            <div className="flex justify-between items-center pb-2 border-b border-zinc-800">
-              <h4 className="font-bold text-zinc-150">
+            <div className="flex justify-between items-center pb-2 border-b border-[#E7E5E4]">
+              <h4 className="font-bold text-[#1C1917]">
                 {showCatModal.mode === 'add' ? 'Créer une Catégorie' : 'Modifier la Catégorie'}
               </h4>
-              <button onClick={() => setShowCatModal(null)} className="text-zinc-500 hover:text-zinc-200 cursor-pointer">
+              <button onClick={() => setShowCatModal(null)} className="text-stone-400 hover:text-stone-750 cursor-pointer">
                 <X size={15} />
               </button>
             </div>
 
             <form onSubmit={handleSaveCategory} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider">Intitulé de la catégorie</label>
+                <label className="text-[10px] text-stone-500 font-extrabold uppercase tracking-wider">Intitulé de la catégorie</label>
                 <input 
                   type="text"
                   required
                   placeholder="Ex. Plats du jour, Pizza..."
                   value={catName}
                   onChange={(e) => setCatName(e.target.value)}
-                  className="w-full bg-[#0d0d0d] border border-zinc-800 text-xs text-zinc-200 rounded-xl px-4 py-3 placeholder-zinc-700 focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                  className="w-full bg-[#FAFAF9] border border-[#E7E5E4] text-xs text-[#1C1917] rounded-xl px-4 py-3 placeholder-stone-300 focus:outline-none focus:border-emerald-500 transition-all font-medium"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider">Icône de regroupement</label>
+                <label className="text-[10px] text-stone-500 font-extrabold uppercase tracking-wider">Icône de regroupement</label>
                 <div className="grid grid-cols-4 gap-2 pt-1">
                   {availableIcons.map((ic) => (
                     <button
                       type="button"
                       key={ic}
                       onClick={() => setCatIcon(ic)}
-                      className={`p-2.5 rounded-lg border text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap ${
+                      className={`p-2 rounded-lg border text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap ${
                         catIcon === ic 
-                          ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10 font-extrabold' 
-                          : 'border-zinc-800 hover:bg-zinc-90 w bg-zinc-900/60 text-zinc-400'
+                          ? 'border-emerald-500 text-emerald-600 bg-emerald-50 font-extrabold' 
+                          : 'border-[#E7E5E4] hover:bg-[#F5F5F4] bg-[#FAFAF9] text-stone-500'
                       }`}
                     >
                       {ic}
@@ -740,7 +737,7 @@ export default function BuilderPanel() {
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-bold text-xs text-black cursor-pointer shadow-lg shadow-emerald-950/25 active:scale-[0.98] transition-all text-center"
+                className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-bold text-xs text-white cursor-pointer shadow active:scale-[0.98] transition-all text-center"
               >
                 Enregistrer la catégorie
               </button>
@@ -753,83 +750,83 @@ export default function BuilderPanel() {
       {/* DIALOG CHIPS: DISH/ITEM MODAL */}
       {/* ======================================= */}
       {showDishModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center z-50 p-4 font-sans text-xs">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 font-sans text-xs">
           <motion.div 
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-zinc-950 text-zinc-100 rounded-2xl border border-zinc-800 p-5 max-w-sm w-full space-y-4 shadow-xl text-left max-h-[90vh] overflow-y-auto"
+            className="bg-white text-[#1C1917] rounded-2xl border border-[#E7E5E4] p-5 max-w-sm w-full space-y-4 shadow-xl text-left max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex justify-between items-center pb-2 border-b border-zinc-800">
-              <h4 className="font-bold text-zinc-150">
+            <div className="flex justify-between items-center pb-2 border-b border-[#E7E5E4]">
+              <h4 className="font-bold text-[#1C1917]">
                 {showDishModal.mode === 'add' ? 'Ajouter un Plat' : 'Ajuster les caractéristiques'}
               </h4>
-              <button onClick={() => setShowDishModal(null)} className="text-zinc-500 hover:text-zinc-200 cursor-pointer">
+              <button onClick={() => setShowDishModal(null)} className="text-stone-400 hover:text-stone-750 cursor-pointer">
                 <X size={15} />
               </button>
             </div>
 
             <form onSubmit={handleSaveDish} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider">Dénomination du plat</label>
+                <label className="text-[10px] text-stone-500 font-extrabold uppercase tracking-wider">Dénomination du plat</label>
                 <input 
                   type="text"
                   required
                   placeholder="Ex. Smash Bacon Cheeseburger..."
                   value={dishName}
                   onChange={(e) => setDishName(e.target.value)}
-                  className="w-full bg-[#0d0d0d] border border-zinc-800 text-xs text-zinc-200 rounded-xl px-4 py-3 placeholder-zinc-700 focus:outline-none focus:border-emerald-500 transition-all font-medium"
+                  className="w-full bg-[#FAFAF9] border border-[#E7E5E4] text-xs text-[#1C1917] rounded-xl px-4 py-3 placeholder-stone-300 focus:outline-none focus:border-emerald-500 transition-all font-medium"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider">Catégorie</label>
+                  <label className="text-[10px] text-stone-500 font-extrabold uppercase tracking-wider">Catégorie</label>
                   <select
                     value={dishCategoryId}
                     onChange={(e) => setDishCategoryId(e.target.value)}
-                    className="w-full bg-[#0d0d0d] border border-zinc-800 text-xs rounded-xl px-3 py-3 text-zinc-200 focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-[#FAFAF9] border border-[#E7E5E4] text-xs rounded-xl px-3 py-3 text-[#1C1917] focus:outline-none focus:border-emerald-505"
                   >
                     {config.categories.map(c => (
-                      <option key={c.id} value={c.id} className="bg-zinc-950 text-zinc-200">{c.name}</option>
+                      <option key={c.id} value={c.id} className="bg-white text-[#1C1917]">{c.name}</option>
                     ))}
                   </select>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider">Tarif ({config.style.currency})</label>
+                  <label className="text-[10px] text-stone-500 font-extrabold uppercase tracking-wider">Tarif ({config.style.currency})</label>
                   <input 
                     type="number"
                     required
                     min="0"
                     value={dishPrice || ''}
                     onChange={(e) => setDishPrice(Number(e.target.value))}
-                    className="w-full bg-[#0d0d0d] border border-zinc-800 text-xs text-zinc-205 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-[#FAFAF9] border border-[#E7E5E4] text-xs text-[#1C1917] rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5 border-t border-zinc-800/60 pt-3">
-                <label className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider">Texte de description du plat</label>
+              <div className="space-y-1.5 border-t border-[#E7E5E4] pt-3">
+                <label className="text-[10px] text-stone-500 font-extrabold uppercase tracking-wider">Texte de description du plat</label>
                 <textarea 
                   rows={2}
                   value={dishDescription}
                   onChange={(e) => setDishDescription(e.target.value)}
                   placeholder="Ingrédients délicats, épices, garnitures..."
-                  className="w-full bg-[#0d0d0d] border border-zinc-800 text-xs text-zinc-200 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-[#FAFAF9] border border-[#E7E5E4] text-xs text-[#1C1917] rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               {/* Cover thumbnail selections */}
               <div className="space-y-2">
-                <label className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider">{"Photo d'illustration du plat"}</label>
-                <div className="flex gap-2 pb-1 overflow-x-auto no-scrollbar">
+                <label className="text-[10px] text-stone-500 font-extrabold uppercase tracking-wider">{"Photo d'illustration du plat"}</label>
+                <div className="flex gap-2 pb-1 overflow-x-auto no-scrollbar font-sans">
                   {sampleDishesImages.map((img, idx) => (
                     <button
                       type="button"
                       key={idx}
                       onClick={() => setDishImageUrl(img)}
                       className={`w-10 h-10 rounded-lg overflow-hidden border flex-shrink-0 cursor-pointer ${
-                        dishImageUrl === img ? 'border-emerald-500 scale-105' : 'border-zinc-800'
+                        dishImageUrl === img ? 'border-emerald-500 scale-105' : 'border-[#E7E5E4]'
                       }`}
                     >
                       <img src={img} alt="sample" className="w-full h-full object-cover" />
@@ -841,30 +838,30 @@ export default function BuilderPanel() {
                   placeholder="Ou collez une URL Unsplash, Picsum..."
                   value={dishImageUrl}
                   onChange={(e) => setDishImageUrl(e.target.value)}
-                  className="w-full bg-[#0d0d0d] border border-zinc-800 text-[10px] text-zinc-400 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-[#FAFAF9] border border-[#E7E5E4] text-[10px] text-stone-500 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               {/* Available ON / OFF select */}
-              <div className="flex justify-between items-center p-3.5 bg-zinc-900/30 rounded-xl border border-zinc-800">
+              <div className="flex justify-between items-center p-3.5 bg-[#F5F5F4] rounded-xl border border-[#E7E5E4]">
                 <div className="text-left font-sans">
-                  <h5 className="text-[11px] font-bold text-zinc-200">Disponibilité du plat</h5>
-                  <p className="text-[9px] text-zinc-500 mt-0.5">{"S'il est inactif, les clients verront la mention 'ÉPUISÉ'."}</p>
+                  <h5 className="text-[11px] font-bold text-[#1C1917]">Disponibilité du plat</h5>
+                  <p className="text-[9px] text-[#78716C] mt-0.5">{"S'il est inactif, les clients verront la mention 'ÉPUISÉ'."}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setDishIsAvailable(!dishIsAvailable)}
                   className={`px-3 py-1 font-extrabold rounded text-[10px] cursor-pointer transition-colors ${
-                    dishIsAvailable ? 'bg-emerald-550/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-550/20'
+                    dishIsAvailable ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-red-50 text-red-650 border border-red-200'
                   }`}
                 >
-                  {dishIsAvailable ? 'DISEPO.' : 'ÉPUISÉ'}
+                  {dishIsAvailable ? 'DISPO.' : 'ÉPUISÉ'}
                 </button>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-bold text-xs text-black cursor-pointer shadow-lg shadow-emerald-950/25 active:scale-[0.98] transition-all text-center"
+                className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-bold text-xs text-white cursor-pointer shadow active:scale-[0.98] transition-all text-center"
               >
                 {"Valider l'Inventaire du Plat"}
               </button>
