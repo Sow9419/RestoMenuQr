@@ -31,7 +31,7 @@ Utilisation de `motion/react` (Framer Motion) uniquement pour des transitions m�
 Pour garantir une expérience utilisateur transparente en cas d'instabilité réseau typique des connexions mobile (3G/4G instable) :
 * **Bandeau de Statut :** Dès que l'API de détection réseau du navigateur signale la perte de signal (`window.addEventListener('offline', ...)`), un bandeau d'alerte orange persistant non bloquant s'affiche subtilement en haut du menu public avec le texte : *"Connexion réseau interrompue. Vos opérations sont stockées localement."*
 * **Sauvegarde des actions :** Le panier et les informations utilisateur actuelles sont immédiatement vérifiés et sauvegardés dans le `LocalStorage`.
-* **Retry avec Backoff exponentiel :** Une logique de tentative automatique de reconnexion s'active toutes les 5, 10 puis 30 secondes pour resynchroniser les états dès le retour du réseau, rechargeant alors le panier et autorisant l'envoi de la commande bloquée.
+* **Retry avec Backoff exponentiel :** Une logique de tentative automatique de reconnexion s'active avec un backoff exponentiel de 2s → 4s → 8s (3 tentatives maximum). Au-delà, l'utilisateur est invité à relancer manuellement via un bouton "Réessayer" explicite pour resynchroniser les états dès le retour du réseau, rechargeant alors le panier et autorisant l'envoi de la commande bloquée.
 
 ---
 

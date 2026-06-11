@@ -130,6 +130,8 @@ uniquement.
 │   ├── auth/             # Logique d'onboarding par Magic Link et RBAC
 │   └── billing/          # Abonnement SaaS et portail d'inscription Stripe
 
+> **Feature-gated — Multi-Établissements :** L'entité `organizations` est présente en base de données et auto-créée à chaque inscription (1:1 avec `restaurants`). La feature `features/organization/` (Org Hub UI, switcher, dashboard agrégé) sera ajoutée lors de l'activation. Aucun routing `/(admin)/org/[orgId]/` n'est exposé actuellement.
+
 ├── templates/            # Moteur de template JSON-driven (UI générative isolée)
 │   ├── engine/           # Interpréteur et boucle de rendu
 │   ├── layouts/          # Modèles de structure (Classic, Card-grid, Premium)
@@ -153,21 +155,39 @@ uniquement.
 ```txt
 app/
 
-├── page.tsx
+├── page.tsx                          # Redirection → /login ou /(admin)
+
+├── login/
+│   └── page.tsx                      # Page Magic Link (email OTP)
+
+├── invite/
+│   └── [token]/
+│       └── page.tsx                  # Acceptation invitation staff (UC-022)
+
+├── onboarding/
+│   └── page.tsx                      # Création restaurant post-inscription
 
 ├── (admin)/
-
-│   ├── layout.tsx
+│   ├── layout.tsx                    # Auth guard, sidebar, navigation
 │   └── [restaurantId]/
+│       ├── builder/page.tsx
+│       ├── orders/page.tsx
+│       ├── pos/page.tsx
+│       ├── dashboard/page.tsx
+│       └── settings/page.tsx
 
 ├── (public)/
-
 │   ├── layout.tsx
 │   └── [slug]/
-
 │       ├── page.tsx
-│       ├── checkout/
+│       ├── checkout/page.tsx
 │       └── tracking/
+│           └── [orderId]/page.tsx
+
+└── api/
+    └── webhooks/
+        └── stripe/
+            └── route.ts              # Exception autorisée — Webhooks Stripe uniquement
 ```
 
 Les pages ne doivent contenir que :

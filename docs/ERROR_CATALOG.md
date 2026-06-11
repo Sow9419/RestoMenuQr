@@ -41,3 +41,10 @@ Tous les codes d'erreur retournés par le système doivent être standardisés p
 - `ERR_PLAN_LIMIT_REACHED` : Le restaurant a atteint son quota maximum de commandes autorisées pour le mois en cours (Starter Plan à 50 commandes).
 - `ERR_SUBSCRIPTION_INACTIVE` : Les fonctionnalités Premium (caisse POS avancée, gestion d'équipe) sont inaccessibles car l'abonnement du tenant n'est pas actif (statut `past_due` ou `canceled`).
 
+## Codes Réservés — Multi-Établissements (Feature-gated)
+
+Ces codes existent dans le catalogue pour préparation mais ne sont pas retournés par l'application actuelle.
+
+- `ERR_RESTAURANT_LIMIT_REACHED` : Le groupe a atteint le quota `max_restaurants` de son plan. Activé lors de l'ouverture de la feature multi-établissements.
+- `ERR_NOT_ORGANIZATION_MEMBER` : Accès refusé — le restaurant cible n'appartient pas à l'organisation de l'utilisateur.
+

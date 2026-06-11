@@ -10,20 +10,31 @@ L'entité principale d'un produit est nommée `products` pour assurer une cohér
 
 ## Modèle de Données Principal
 
+### 0. `organizations`
+Entité racine représentant un groupe de restaurants sous un abonnement unifié.
+Créée automatiquement et silencieusement à chaque inscription — transparente pour l'utilisateur en mode single-restaurant.
+- `id` (uuid, pk)
+- `owner_id` (uuid, fk -> auth.users)
+- `name` (text) — Nom du groupe ou du restaurant unique.
+- `stripe_customer_id` (text, nullable)
+- `stripe_subscription_id` (text, nullable)
+- `subscription_status` (text, default: 'inactive') /* active, canceled, past_due, inactive */
+- `plan_type` (text, default: 'starter') /* starter, premium */
+- `max_restaurants` (int, default: 1) — Quota d'établissements autorisés par le plan. Vaut 1 pour tous les plans actuels. Sera augmenté lors de l'activation de la feature multi-établissements.
+- `created_at` (timestamptz, default: now())
+- `updated_at` (timestamptz, default: now())
+
 ### 1. `restaurants`
 Contient les informations d'identité globale et le statut SaaS du restaurant.
 - `id` (uuid, pk)
 - `owner_id` (uuid, fk -> auth.users)
+- `organization_id` (uuid, fk -> organizations, not null) — Organisation propriétaire.
 - `name` (text)
 - `slug` (text, unique) — Slug immuable après création (`ERR_SLUG_IMMUTABLE`).
 - `phone` (text) — Numéro WhatsApp/téléphone de contact officiel.
 - `address` (text) — Adresse de l'établissement physique.
 - `is_open` (boolean, default: true) — Statut d'ouverture instantané pour la cuisine.
 - `logo_url` (text, nullable) — URL vers le logo stocké dans Supabase Storage.
-- `stripe_customer_id` (text, nullable)
-- `stripe_subscription_id` (text, nullable)
-- `subscription_status` (text, default: 'inactive') /* active, canceled, past_due, inactive */
-- `plan_type` (text, default: 'starter') /* starter, premium */
 - `created_at` (timestamptz, default: now())
 - `updated_at` (timestamptz, default: now())
 
@@ -32,7 +43,10 @@ Rattache un utilisateur d'authentification Supabase à un rôle et un restaurant
 - `id` (uuid, pk)
 - `user_id` (uuid, fk -> auth.users)
 - `restaurant_id` (uuid, fk -> restaurants)
-- `role` (enum: OWNER, WAITER, CASHIER, KITCHEN)
+- `organization_id` (uuid, fk -> organizations, not null) — Organisation de rattachement.
+- `role` (enum: ORG_OWNER, OWNER, WAITER, CASHIER, KITCHEN)
+-- Note : ORG_OWNER est réservé à l'activation de la feature multi-établissements.
+-- En mode single-restaurant actuel, tous les propriétaires ont le rôle OWNER.
 - `created_at` (timestamptz, default: now())
 
 ### 3. `categories`
@@ -40,6 +54,7 @@ Sections thématiques permettant de regrouper les produits du menu.
 - `id` (uuid, pk)
 - `restaurant_id` (uuid, fk -> restaurants)
 - `name` (text)
+- `icon` (text, default: 'Utensils') — Nom de l'icône lucide-react associée à la catégorie (ex: 'Pizza', 'CupSoda', 'Beef').
 - `sort_order` (int, default: 0)
 - `created_at` (timestamptz, default: now())
 
@@ -86,6 +101,7 @@ Ordre et état de visibilité des grands blocs du menu public.
 Invitations envoyées pour intégrer de nouveaux membres d'équipe.
 - `id` (uuid, pk)
 - `restaurant_id` (uuid, fk -> restaurants)
+- `organization_id` (uuid, fk -> organizations, not null) — Organisation émettrice.
 - `invited_by` (uuid, fk -> auth.users)
 - `email` (text)
 - `role` (text) /* 'OWNER' | 'WAITER' | 'CASHIER' | 'KITCHEN' */
@@ -122,6 +138,8 @@ Détail unitaire des produits commandés.
 
 ## Row Level Security (RLS)
 
+- **Organizations** : Lecture/écriture uniquement par le `owner_id` correspondant à `auth.uid()`. Aucun accès public.
+- **Note Feature-gated** : Les politiques RLS cross-restaurant (permettant à un ORG_OWNER d'accéder à plusieurs restaurants) ne sont pas implémentées à ce stade. En mode actuel, chaque `organization` contient exactement 1 `restaurant` — la politique restaurant-level est donc suffisante. Les politiques org-level seront ajoutées lors de l'activation de la feature.
 - **Public** : Lecture seule autorisée sur `restaurants`, `categories`, `products`, `page_settings` et `page_sections` en filtrant uniquement sur le `slug` unique ou l'ID publique du restaurant. La création d'une commande (`orders` et `order_items`) est publique, mais la lecture se limite aux commandes rattachées au cookie de session de suivi client (`orderId`).
 - **Staff** : Accès complet de lecture et d'écriture partiel sur les `orders`, `order_items`, et les données du menu, basé sur l'authentification et le lien `restaurant_id` déduit depuis leur entrée correspondante dans `profiles`.
 - **Owner** : Droits absolus d'édition et de suppression sur l'ensemble des entités liées à son `restaurant_id`.
@@ -131,3 +149,23 @@ Détail unitaire des produits commandés.
 ## Migrations
 Toutes les modifications de schéma doivent passer par des migrations SQL documentées sous forme de fichiers `.sql` de migration incrémentaux PostgreSQL.
 
+## Index SQL Recommandés
+
+Les index suivants sont obligatoires dès la migration initiale pour garantir des performances acceptables à l'échelle :
+
+```sql
+CREATE INDEX idx_restaurants_slug         ON restaurants(slug);
+CREATE INDEX idx_categories_restaurant_id ON categories(restaurant_id);
+CREATE INDEX idx_products_category_id     ON products(category_id);
+CREATE INDEX idx_page_settings_restaurant ON page_settings(restaurant_id);
+CREATE INDEX idx_page_sections_restaurant ON page_sections(restaurant_id);
+CREATE INDEX idx_orders_restaurant_id     ON orders(restaurant_id);
+CREATE INDEX idx_orders_status            ON orders(status);
+CREATE INDEX idx_order_items_order_id     ON order_items(order_id);
+CREATE INDEX idx_profiles_user_id         ON profiles(user_id);
+CREATE INDEX idx_profiles_restaurant_id   ON profiles(restaurant_id);
+CREATE INDEX idx_invitations_token        ON invitations(token);
+CREATE INDEX idx_restaurants_organization_id ON restaurants(organization_id);
+CREATE INDEX idx_profiles_organization_id    ON profiles(organization_id);
+CREATE INDEX idx_invitations_organization_id ON invitations(organization_id);
+```

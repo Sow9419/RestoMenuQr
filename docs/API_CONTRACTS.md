@@ -48,6 +48,10 @@ Toutes les mutations et accès restreints passent par les fichiers Server Action
   * *Schéma d'entrée :* `createProductSchema` (nom, description, prix, image_url, categoryId).
 * **`updateProduct(restaurantId: string, productId: string, data: unknown): Promise<ActionResponse<Product>>`**
 * **`deleteProduct(restaurantId: string, productId: string): Promise<ActionResponse<{ deletedId: string }>>`**
+* **`updatePageSettings(restaurantId: string, settings: unknown, sections: unknown): Promise<ActionResponse<{ settings: PageSettings; sections: PageSection[] }>>`**
+  * *Schéma :* `updatePageSettingsSchema` (accent_color, font_family, hero_title, hero_description, hero_banner_url, display_mode, overlay_opacity, glassmorphism, density, template_layout) + tableau de sections ordonné.
+  * *Règles :* Opération atomique : met à jour `page_settings` ET `page_sections` dans la même transaction.
+  * *Cible DB :* Tables `page_settings` + `page_sections`.
 
 ### 2. Feature : `order` (`/features/order/actions/`)
 * **`createOrder(restaurantId: string, orderPayload: unknown): Promise<ActionResponse<Order>>`**
@@ -59,15 +63,24 @@ Toutes les mutations et accès restreints passent par les fichiers Server Action
 
 ### 3. Feature : `auth` (`/features/auth/actions/`)
 * **`loginWithMagicLink(email: string): Promise<ActionResponse<{ sent: boolean }>>`**
-  * *Régles :* Envoi d'un courriel via `supabase.auth.signInWithOtp()` sécurisé.
+  * *Régles :* Envoi d'un courriel via `supabase.auth.signInWithOtp()` sécurisé. Après connexion, l'utilisateur sans organisation/restaurant de rattachement est redirigé vers `/onboarding` pour l'initialisation automatique.
 * **`acceptInvitation(token: string): Promise<ActionResponse<{ profileId: string }>>`**
   * *Régles :* Relie le profil d'authentification de l'invité au `restaurant_id` lié de l'invitation. Retourne `ERR_INVITATION_EXPIRED` ou `ERR_INVITATION_ALREADY_ACCEPTED`.
 
 ### 4. Feature : `settings` (`/features/settings/actions/`)
-* **`updateRestaurantSettings(restaurantId: string, data: unknown): Promise<ActionResponse<Restaurant>>`**
-  * *Schéma :* `updateSettingsSchema` (numéro WhatsApp, adresse, logo, statut d'ouverture).
+* **`updateRestaurantProfile(restaurantId: string, data: unknown): Promise<ActionResponse<Restaurant>>`**
+  * *Schéma :* `updateRestaurantProfileSchema` (name, phone, address, logo_url, is_open, currency).
+  * *Cible DB :* Table `restaurants`.
 * **`inviteStaffMember(restaurantId: string, email: string, role: string): Promise<ActionResponse<Invitation>>`**
   * *Régles :* Limite stricte à 10 invitations en attente (`ERR_TOO_MANY_ACTIVE_INVITATIONS`). Expire sous 24h.
+
+### 5. Feature : `onboarding` (`/features/auth/actions/`)
+
+* **`createRestaurantWithOrg(data: unknown): Promise<ActionResponse<{ restaurant: Restaurant; organization: Organization }>>`**
+  * *Usage :* Appelé uniquement depuis la page `/onboarding` post-Magic Link. Non exposé ailleurs.
+  * *Schéma :* `onboardingSchema` (restaurant.name, restaurant.slug uniquement — l'org est créée automatiquement avec les mêmes valeurs).
+  * *Comportement :* Crée atomiquement dans une transaction : 1 `organizations` + 1 `restaurants` + 1 `profiles` (role: OWNER) + 1 `page_settings` (defaults) + N `page_sections` (defaults). L'utilisateur ne voit jamais le concept d'organisation.
+  * *Règles :* `ERR_SLUG_IMMUTABLE` si slug déjà pris. `ERR_VALIDATION` si schema invalide.
 
 ---
 

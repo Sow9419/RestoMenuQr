@@ -11,6 +11,7 @@ Ce fichier consigne les choix structuraux majeurs du projet.
 ## 002 - State Management
 **Décision** : Utiliser Zustand pour les états complexes locaux (ex: Panier/CartStore). Ne pas tout globaliser.
 **Raison** : Zustand est très léger, évite le boilerplate de Redux et les renders inutiles du React Context natif.
+**Implémentation :** Chaque store Zustand est localisé dans le dossier `/features/[feature-name]/store/[name].store.ts`. Aucun répertoire global `stores/` n'est autorisé.
 
 ## 003 - Backend & Database
 **Décision** : Utiliser Supabase.
@@ -52,7 +53,16 @@ Ce fichier consigne les choix structuraux majeurs du projet.
 **Décision** : Appliquer une clause de Row Level Security (RLS) PostgreSQL systématique filtrant sur l'ID de session authentifié `auth.uid()` relié aux `profiles` sur toutes les entités de l'application.
 **Raison** : Garantit une barrière d'isolation étanche absolue contre les attaques intra-tenants de fuite d'informations rattachés à des compétiteurs.
 
-## 013 - Pas de Répertoire global `stores/`
-**Décision** : Diviser les stores Zustand dans chaque dossier `/features/*/store/` associé de manière modulaire au lieu de maintenir un répertoire global désorganisé.
-**Raison** : Renforce la cohésion d'architecture Feature First, limite le couplage technique et simplifie l'onboarding de nouveaux développeurs sur des modules spécifiques.
+## 013 - (Consolidé avec ADR-002)
+ADR-013 précisait l'organisation physique des stores Zustand en dossiers `/features/*/store/`.
+Ce principe est désormais intégré directement dans ADR-002 en tant que règle d'implémentation.
+Voir : `ARCHITECTURE.md` → section "Stores Zustand".
+
+## 014 - Stratégie Schema-ready pour le Multi-Établissements
+**Décision** : Introduire la table `organizations` et ses FKs dans le schéma dès le Jour 1, avec création automatique et transparente d'une organisation 1:1 à chaque inscription. La facturation Stripe est rattachée à `organizations`. Aucune UI multi-restaurant n'est exposée à ce stade.
+**Raison** : Évite une migration de données coûteuse le jour où la feature est activée (ajouter `organization_id` sur des tables avec des millions de lignes est un risque opérationnel majeur). Le coût de l'intégrer proprement dès le début est de ~0.5 sprint vs 3-4 sprints en retrofit.
+
+## 015 - Rôle ORG_OWNER Dormant dans l'Enum
+**Décision** : Inclure `ORG_OWNER` dans l'enum `profiles.role` dès la création du schéma, sans l'exposer dans l'UI ou les permissions actuelles.
+**Raison** : Modifier un enum PostgreSQL sur une table en production avec des données existantes nécessite un verrou de table et peut causer des indisponibilités. L'inclure dès le départ coûte zéro.
 

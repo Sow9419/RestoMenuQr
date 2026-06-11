@@ -192,6 +192,8 @@ Le projet intègre un modèle économique de type **Freemium / Premium SaaS** pr
    * Gestion d'équipe et rôles (CASHIER, KITCHEN, WAITER).
    * Caisse complète (POS) et suppression complète de la signature publicitaire.
 
+> **Note d'implémentation :** La facturation Stripe est techniquement rattachée à l'entité `organizations` dès le Jour 1, même pour les utilisateurs single-restaurant. Cette décision d'architecture permet d'activer la feature multi-établissements sans migration de données Stripe lorsque le besoin se présente.
+
 ## Cycle de Facturation & Stripe
 
 * Intégration via Stripe Checkout.
@@ -332,6 +334,7 @@ Ne pas implémenter :
 * gestion des stocks
 * comptabilité avancée
 * application mobile native
+* gestion multi-établissements (UI Org Hub, restaurant switcher — feature-gated, activable post-PMF)
 
 ---
 

@@ -14,21 +14,21 @@ Le Builder ne génère pas de code, il produit une configuration JSON persistée
 
 ```json
 {
-  "theme": {
-    "primaryColor": "#C2410C",
-    "fontFamily": "Playfair Display"
-  },
-  "layout": "classic", 
+  "version": "1.0",
+  "theme": { "primaryColor": "#C2410C", "fontFamily": "Playfair Display" },
+  "layout": "classic",
   "sections": [
     {
-      "type": "hero",
-      "visible": true,
+      "section_key": "hero",
+      "is_enabled": true,
+      "sort_order": 0,
       "props": { "title": "Notre Menu", "subtitle": "Découvrez nos spécialités" }
     },
     {
-      "type": "category_list",
-      "visible": true,
-      "style": "grid" 
+      "section_key": "category_list",
+      "is_enabled": true,
+      "sort_order": 1,
+      "style": "horizontal_scroll"
     }
   ]
 }
@@ -73,11 +73,13 @@ Pour concilier vitesse de chargement instantanée (critique sous réseau faiblar
        <style dangerouslySetInnerHTML={{__html: `
          :root {
            --color-primary: ${accentColor};
-           --color-primary-hover: ${accentColor}dd;
+           --color-primary-hover: color-mix(in srgb, ${accentColor} 80%, #000);
          }
        `}} />
      );
      ```
+     // Note : color-mix() est supporté par tous les navigateurs modernes (Chrome 111+, Safari 16.2+, Firefox 113+).
+     // Pour les restaurants utilisant la couleur terracotta par défaut (#C2410C), la valeur exacte #9A3412 est appliquée via tailwind.config.ts.
 
 ---
 
@@ -86,7 +88,7 @@ Pour concilier vitesse de chargement instantanée (critique sous réseau faiblar
 Lorsque l'Owner utilise l'interface d'édition visuelle du Builder :
 - **Pas de recompilation de code :** Chaque réglette, sélecteur à boutons-pression ou palette de couleur met immédiatement à jour un store Zustand local `useBuilderStore`.
 - **Live Preview :** La preview affiche instantanément le résultat grâce à ce store réactif.
-- **Sauvegarde :** Un bouton unique "Enregistrer les modifications" déclenche la Server Action `updateRestaurantSettings` qui persist les modifications dans `page_settings` et `page_sections` en base de données de façon atomique.
+- **Sauvegarde :** Un bouton unique "Enregistrer les modifications" déclenche la Server Action `updatePageSettings` qui persiste les modifications visuelles dans `page_settings` et l'ordonnancement des sections dans `page_sections` de façon atomique.
 
 ---
 
@@ -94,4 +96,3 @@ Lorsque l'Owner utilise l'interface d'édition visuelle du Builder :
 
 Le layout JSON d'un template intègre à sa racine une clé `"version": "1.0"`.
 * En cas d'évolution future (ex: ajout d'une section "Promotions" ou "Horaires"), le moteur de template Next.js intègre un convertisseur automatique (Middleware de configuration d'UI) qui mappe l'ancienne structure vers les nouvelles propriétés par défaut, évitant ainsi de casser l'affichage des anciens restaurants de la plateforme.
-

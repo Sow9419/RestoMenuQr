@@ -56,9 +56,10 @@ const colors = {
   error:     '#DC2626',
   info:      '#0369A1',
 
-  // — Order status (mapping visuel → DOMAIN_MODEL.md OrderStatus)
+  // — Order status (mapping visuel → DATABASE.md orders.status + ARCHITECTURE.md workflow Orders)
   status: {
     pending:   { bg: '#FEF3C7', text: '#92400E', border: '#FCD34D' }, // amber
+    confirmed: { bg: '#EFF6FF', text: '#1D4ED8', border: '#BFDBFE' }, // blue-50/700/200 — plus clair que preparing
     preparing: { bg: '#DBEAFE', text: '#1E40AF', border: '#93C5FD' }, // blue
     ready:     { bg: '#D1FAE5', text: '#065F46', border: '#6EE7B7' }, // green
     completed: { bg: '#F5F5F4', text: '#57534E', border: '#D6D3D1' }, // neutral
