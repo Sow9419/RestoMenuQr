@@ -136,9 +136,33 @@ Détail unitaire des produits commandés.
 
 ---
 
-## Row Level Security (RLS)
+## Row Level Security (RLS) & API Access (Supabase Explicit GRANTs Post-May 30)
 
-- **Organizations** : Lecture/écriture uniquement par le `owner_id` correspondant à `auth.uid()`. Aucun accès public.
+Le projet intègre les nouvelles règles de sécurité Supabase (post-30 mai) : par défaut, le schéma `public` n'étant plus exposé automatiquement à l'API de données, toutes les tables nécessitent des autorisations explicites (`GRANT`) distinctes de l'activation du RLS pour être accessibles par `supabase-js`, `PostgREST` ou `GraphQL`. 
+
+### 1. Autorisations d’accès par rôle (GRANTs globaux)
+
+Lors du déploiement ou de la migration initiale de chaque table (`organizations`, `restaurants`, `profiles`, `categories`, `products`, `page_settings`, `page_sections`, `invitations`, `orders`, `order_items`), les privilèges SQL suivants doivent être appliqués rigoureusement :
+
+```sql
+-- Exemple type pour une table de l'application (ici public.restaurants)
+
+-- 1. Accorder l'accès public en lecture seule si applicable (ex: restaurants, categories, products, page_settings, page_sections, orders, order_items)
+GRANT SELECT ON public.restaurants TO anon;
+
+-- 2. Accorder l'accès complet en écrit/lecture pour les utilisateurs authentifiés (Staff, Owners, Clients authentifiés)
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.restaurants TO authenticated;
+
+-- 3. Accorder l'accès total au rôle de service admin
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.restaurants TO service_role;
+```
+
+### 2. Politiques de sécurité (RLS) par entité
+
+- **Organizations** :
+  * Activer RLS : `ALTER TABLE public.organizations ENABLE ROW LEVEL SECURITY;`
+  * Grants : `GRANT SELECT, INSERT, UPDATE, DELETE ON public.organizations TO authenticated, service_role;` (Aucun grant à `anon`).
+  * Politique : Lecture/écriture uniquement par le `owner_id` correspondant à `auth.uid()`. Aucun accès public.
 - **Note Feature-gated** : Les politiques RLS cross-restaurant (permettant à un ORG_OWNER d'accéder à plusieurs restaurants) ne sont pas implémentées à ce stade. En mode actuel, chaque `organization` contient exactement 1 `restaurant` — la politique restaurant-level est donc suffisante. Les politiques org-level seront ajoutées lors de l'activation de la feature.
 - **Public** : Lecture seule autorisée sur `restaurants`, `categories`, `products`, `page_settings` et `page_sections` en filtrant uniquement sur le `slug` unique ou l'ID publique du restaurant. La création d'une commande (`orders` et `order_items`) est publique, mais la lecture se limite aux commandes rattachées au cookie de session de suivi client (`orderId`).
 - **Staff** : Accès complet de lecture et d'écriture partiel sur les `orders`, `order_items`, et les données du menu, basé sur l'authentification et le lien `restaurant_id` déduit depuis leur entrée correspondante dans `profiles`.
