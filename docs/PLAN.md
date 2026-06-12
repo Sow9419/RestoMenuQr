@@ -11,39 +11,39 @@ Sous chaque jalon, une **check-list technique ultra-granulaire** évite la gén�
 ## Phase 1 : Fondations et Base de données
 
 ### 1-1. Initialisation & Conventions
-- [ ] Configurer Next.js (App Router, Tailwind CSS, TypeScript in strict mode).
-- [ ] Créer la structure globale des dossiers : `/features`, `/templates`, `/shared`.
-- [ ] Configurer les alias d'importation dans `tsconfig.json` (`@/features/*`, `@/shared/*`, `@/templates/*`).
-- [ ] Déclarer toutes les variables d'environnement nécessaires dans `.env.example`.
-- [ ] Valider l'intégrité de la compilation initiale via le linter.
+- [x] Configurer Next.js (App Router, Tailwind CSS, TypeScript in strict mode).
+- [x] Créer la structure globale des dossiers : `/features`, `/templates`, `/shared`.
+- [x] Configurer les alias d'importation dans `tsconfig.json` (`@/features/*`, `@/shared/*`, `@/templates/*`).
+- [x] Déclarer toutes les variables d'environnement nécessaires dans `.env.example`.
+- [x] Valider l'intégrité de la compilation initiale via le linter.
 
 ### 1-2. Interconnexion Supabase & Authentification
-- [ ] Initialiser le client de base de données Supabase avec mécanismes de retry/timeout robustes.
-- [ ] Établir la table `profiles` pour stocker les profils utilisateurs d'authentification rattachés à un `restaurant_id`.
-- [ ] Établir le middleware Next.js pour la protection stricte des routes `/admin/*`.
-- [ ] Configurer le flux d'inscription, de connexion et de réinitialisation de mot de passe (Offline-safe fallback).
-- [ ] Associer automatiquement la création d'un utilisateur à un ID de locataire (Tenant multi-tenant).
+- [x] Initialiser le client de base de données Supabase avec mécanismes de retry/timeout robustes.
+- [x] Établir la table `profiles` pour stocker les profils utilisateurs d'authentification rattachés à un `restaurant_id`.
+- [x] Établir le middleware Next.js pour la protection stricte des routes `/admin/*`.
+- [x] Configurer le flux d'inscription, de connexion et de réinitialisation de mot de passe (Offline-safe fallback).
+- [x] Associer automatiquement la création d'un utilisateur à un ID de locataire (Tenant multi-tenant).
 
 ### 1-3. Sécurisation par Row Level Security (RLS) & Accès Supabase (GRANTs)
-- [ ] Activer RLS sur les tables : `restaurants`, `profiles`, `categories`, `products`, `page_settings`, `page_sections`, `invitations`, `orders`, `order_items`.
-- [ ] Appliquer les autorisations d'accès explicites (`GRANT`) requises par les nouvelles règles de sécurité de l’API de données de Supabase (rôles `anon`, `authenticated`, `service_role`).
-- [ ] Déclarer la politique RLS publique : lecture seule autorisée sur `restaurants`, `categories` et `products` utilisant uniquement le `slug` unique du restaurant.
-- [ ] Déclarer les politiques RLS pour l'équipe (Staff/Owner) : opérations limitées aux lignes où `restaurant_id` correspond au profil de l'utilisateur connecté.
-- [ ] Rédiger des scripts sql de validation pour prouver l'isolation absolue des tenants (Test de cloisonnement).
-- [ ] Valider les contraintes de clés étrangères et d'unicité (Slug immuable) au niveau PostgreSQL.
+- [x] Activer RLS sur les tables : `restaurants`, `profiles`, `categories`, `products`, `page_settings`, `page_sections`, `invitations`, `orders`, `order_items`.
+- [x] Appliquer les autorisations d'accès explicites (`GRANT`) requises par les nouvelles règles de sécurité de l’API de données de Supabase (rôles `anon`, `authenticated`, `service_role`).
+- [x] Déclarer la politique RLS publique : lecture seule autorisée sur `restaurants`, `categories` et `products` utilisant uniquement le `slug` unique du restaurant.
+- [x] Déclarer les politiques RLS pour l'équipe (Staff/Owner) : opérations limitées aux lignes où `restaurant_id` correspond au profil de l'utilisateur connecté.
+- [x] Rédiger des scripts sql de validation pour prouver l'isolation absolue des tenants (Test de cloisonnement).
+- [x] Valider les contraintes de clés étrangères et d'unicité (Slug immuable) au niveau PostgreSQL.
 
 ### 1-4. Design System & Jetons Visuels (Tokens)
-- [ ] Configurer les CSS Variables et le fichier Tailwind CSS conformément à `DESIGN_SYSTEM.md`.
-- [ ] Intégrer les typographies Google Fonts : **Playfair Display** (Titres, plats) et **Source Sans 3** (Contrôles, corps).
-- [ ] Implémenter les variables de couleur : Chaleur terracota (`#C2410C`), tons sable (`#F5F5F4`), neutre chaud (`#FAFAF9`).
-- [ ] Créer la bibliothèque de composants atomiques de base dans `/shared/ui` (Boutons, Cards, Formulaires, Toasts).
-- [ ] Garantir une zone tactile minimum de **44px sur mobile** pour tous les éléments interactifs.
+- [x] Configurer les CSS Variables et le fichier Tailwind CSS conformément à `DESIGN_SYSTEM.md`.
+- [x] Intégrer les typographies Google Fonts : **Playfair Display** (Titres, plats) et **Source Sans 3** (Contrôles, corps).
+- [x] Implémenter les variables de couleur : Chaleur terracota (`#C2410C`), tons sable (`#F5F5F4`), neutre chaud (`#FAFAF9`).
+- [x] Créer la bibliothèque de composants atomiques de base dans `/shared/ui` (Boutons, Cards, Formulaires, Toasts).
+- [x] Garantir une zone tactile minimum de **44px sur mobile** pour tous les éléments interactifs.
 
 ### 1-5. Store Local (État Global Client)
-- [ ] Structurer les slices Zustand pour l'interface globale et les préférences légères.
-- [ ] Implémenter le middleware Zustand de sauvegarde persistante (Local Memory / Session / LocalStorage).
-- [ ] Écrire le système de notification global (Toasts asynchrones) pour l'ensemble des modules d'UI.
-- [ ] Prévoir les indicateurs de chargement (Skeletons animés par pulsation) pour les appels distants.
+- [x] Structurer les slices Zustand pour l'interface globale et les préférences légères.
+- [x] Implémenter le middleware Zustand de sauvegarde persistante (Local Memory / Session / LocalStorage).
+- [x] Écrire le système de notification global (Toasts asynchrones) pour l'ensemble des modules d'UI.
+- [x] Prévoir les indicateurs de chargement (Skeletons animés par pulsation) pour les appels distants.
 
 ---
 

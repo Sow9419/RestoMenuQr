@@ -127,7 +127,7 @@ uniquement.
 │   ├── pos/              # Module d'encaissement et de caisse enregistreuse
 │   ├── settings/         # Configuration restaurant et invitations d'équipe
 │   ├── dashboard/        # Analyse d'activité et calcul des KPI
-│   ├── auth/             # Logique d'onboarding par Magic Link et RBAC
+│   ├── auth/             # Logique d'onboarding par code OTP Email et RBAC
 │   └── billing/          # Abonnement SaaS et portail d'inscription Stripe
 
 > **Feature-gated — Multi-Établissements :** L'entité `organizations` est présente en base de données et auto-créée à chaque inscription (1:1 avec `restaurants`). La feature `features/organization/` (Org Hub UI, switcher, dashboard agrégé) sera ajoutée lors de l'activation. Aucun routing `/(admin)/org/[orgId]/` n'est exposé actuellement.
@@ -158,7 +158,7 @@ app/
 ├── page.tsx                          # Redirection → /login ou /(admin)
 
 ├── login/
-│   └── page.tsx                      # Page Magic Link (email OTP)
+│   └── page.tsx                      # Page de connexion (saisie email & code OTP)
 
 ├── invite/
 │   └── [token]/

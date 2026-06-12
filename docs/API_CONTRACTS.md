@@ -62,8 +62,10 @@ Toutes les mutations et accès restreints passent par les fichiers Server Action
   * *Régles :* Public (lecture seule filtrée sur ID de suivi).
 
 ### 3. Feature : `auth` (`/features/auth/actions/`)
-* **`loginWithMagicLink(email: string): Promise<ActionResponse<{ sent: boolean }>>`**
-  * *Régles :* Envoi d'un courriel via `supabase.auth.signInWithOtp()` sécurisé. Après connexion, l'utilisateur sans organisation/restaurant de rattachement est redirigé vers `/onboarding` pour l'initialisation automatique.
+* **`sendEmailOTP(email: string): Promise<ActionResponse<{ sent: boolean }>>`**
+  * *Règles :* Envoi d'un code OTP par courriel via `supabase.auth.signInWithOtp()` sécurisé.
+* **`verifyEmailOTP(email: string, token: string): Promise<ActionResponse<{ verified: boolean }>>`**
+  * *Règles :* Vérification du code OTP de 6 chiffres saisi par l'utilisateur via `supabase.auth.verifyOtp()`. Après connexion réussie, l'utilisateur sans organisation/restaurant de rattachement est redirigé vers `/onboarding` pour l'initialisation automatique.
 * **`acceptInvitation(token: string): Promise<ActionResponse<{ profileId: string }>>`**
   * *Régles :* Relie le profil d'authentification de l'invité au `restaurant_id` lié de l'invitation. Retourne `ERR_INVITATION_EXPIRED` ou `ERR_INVITATION_ALREADY_ACCEPTED`.
 
@@ -77,7 +79,7 @@ Toutes les mutations et accès restreints passent par les fichiers Server Action
 ### 5. Feature : `onboarding` (`/features/auth/actions/`)
 
 * **`createRestaurantWithOrg(data: unknown): Promise<ActionResponse<{ restaurant: Restaurant; organization: Organization }>>`**
-  * *Usage :* Appelé uniquement depuis la page `/onboarding` post-Magic Link. Non exposé ailleurs.
+  * *Usage :* Appelé uniquement depuis la page `/onboarding` post-connexion OTP. Non exposé ailleurs.
   * *Schéma :* `onboardingSchema` (restaurant.name, restaurant.slug uniquement — l'org est créée automatiquement avec les mêmes valeurs).
   * *Comportement :* Crée atomiquement dans une transaction : 1 `organizations` + 1 `restaurants` + 1 `profiles` (role: OWNER) + 1 `page_settings` (defaults) + N `page_sections` (defaults). L'utilisateur ne voit jamais le concept d'organisation.
   * *Règles :* `ERR_SLUG_IMMUTABLE` si slug déjà pris. `ERR_VALIDATION` si schema invalide.

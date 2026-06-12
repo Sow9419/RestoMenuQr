@@ -21,9 +21,9 @@ Ce fichier consigne les choix structuraux majeurs du projet.
 **Décision** : UI pilotée par la donnée (JSON configuratif) plutôt que génération de code.
 **Raison** : Évite les failles d'injection de code, simplifie le stockage, et garantit que toutes les UI générées restent dans le scope du Design System.
 
-## 005 - Authentification par Magic Link (Supabase Auth)
-**Décision** : Préférer l'authentification Magic Link (Email OTP) sans mot de passe complexe pour l'ensemble du Staff et des Owners.
-**Raison** : Simplifie l'expérience d'onboarding sur smartphone, élimine le risque de perte de mot de passe et réinitialisations interminables, et rehausse le niveau de sécurité général vis-à-vis des attaques par dictionnaire.
+## 005 - Authentification sans mot de passe (Email OTP)
+**Décision** : Préférer l'authentification sans mot de passe par code OTP reçu par email pour l'ensemble du Staff et des Owners.
+**Raison** : Simplifie l'expérience d'onboarding sur tout type d'appareil (ordinateur comme smartphone). L'utilisateur saisit son email, reçoit un code OTP à 6 chiffres qu'il renseigne direct sur la page pour valider la connexion. Cela élimine le besoin de redirection complexe obligatoire avec les Magic Links (parfois bloqués ou ouverts dans de mauvais navigateurs intégrés), supprime le risque de perte de mot de passe, et rehausse le niveau de sécurité général vis-à-vis des attaques par dictionnaire.
 
 ## 006 - Offline First & Persistance Panier (LocalStorage)
 **Décision** : Le panier d'achat client et les informations d'identification de la table sont conservés localement dans le `LocalStorage` via Zustand.

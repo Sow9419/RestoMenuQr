@@ -25,9 +25,9 @@ Tous les codes d'erreur retournés par le système doivent être standardisés p
 - `ERR_INVITATION_ALREADY_ACCEPTED` : Cet e-mail d'invitation a déjà été consommé par un utilisateur d'authentification valide.
 
 ## Codes d'Erreur Globaux Supplémentaires
-- `ERR_SESSION_EXPIRED` : La session utilisateur ou les cookies d'authentification Supabase ont expiré, nécessitant une reconnexion Magic Link.
-- `ERR_MAGIC_LINK_EXPIRED` : Le lien d'authentification OTP à usage unique a dépassé sa durée légale de validité.
-- `ERR_MAGIC_LINK_ALREADY_USED` : Le lien d'accès direct par jeton a déjà été utilisé lors d'une précédente session d'initialisation.
+- `ERR_SESSION_EXPIRED` : La session utilisateur ou les cookies d'authentification Supabase ont expiré, nécessitant une reconnexion par code OTP.
+- `ERR_OTP_EXPIRED` : Le code de vérification OTP de session e-mail a dépassé sa durée légale de validité.
+- `ERR_OTP_INVALID` : Le code OTP saisi est incorrect, invalide ou a déjà été consommé.
 
 ## Codes Métier Supplémentaires - Menu & Commande Client
 - `ERR_MENU_NOT_FOUND` : Le slug de restaurant spécifié dans l'URL n'est associé à aucun établissement enregistré en base.

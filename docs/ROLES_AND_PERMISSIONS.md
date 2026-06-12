@@ -54,7 +54,7 @@ Le client final accédant au menu via QR Code n'est pas authentifié. Les accès
 
 ## Cas Utilisateur Non Profilé
 
-Un utilisateur authentifié sans entrée dans `profiles` (ex : nouveau compte Magic Link sans restaurant associé) est redirigé vers `/onboarding` pour créer ou rejoindre un restaurant. Aucun accès aux modules admin n'est accordé tant que ce profil est absent.
+Un utilisateur authentifié sans entrée dans `profiles` (ex : nouveau compte sans restaurant associé post-connexion OTP) est redirigé vers `/onboarding` pour créer ou rejoindre un restaurant. Aucun accès aux modules admin n'est accordé tant que ce profil est absent.
 
 ---
 
