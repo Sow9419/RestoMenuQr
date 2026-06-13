@@ -126,7 +126,7 @@ export const DEFAULT_CONFIG: RestaurantConfig = {
   sections: INITIAL_SECTIONS,
   style: {
     displayMode: 'light',
-    accentColor: '#10b981', // Elegant Emerald
+    accentColor: '#C2410C', // Orange brique chaleureux
     fontFamily: 'font-serif', // Playfair Serif
     heroBannerUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200',
     heroTitle: 'Cuisine d\'Exception & Ambiance Feutrée',

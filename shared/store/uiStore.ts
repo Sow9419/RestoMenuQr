@@ -18,6 +18,14 @@ interface UIStoreState {
   setDisplayMode: (mode: 'light' | 'dark') => void;
 }
 
+/**
+ * UI Store - Zustand & Persist
+ * Justification d'usage Zustand local (ADR-009) :
+ * Ce store gère l'état graphique volatil du client (toasts éphémères) et les préférences utilisateur
+ * légères côté navigateur (displayMode). La persistance hybride via localstorage n'est utilisée
+ * ICI que pour stocker temporairement le displayMode afin d'éviter le flicker au chargement,
+ * ce qui constitue une exception valide aux règles de stockage persistant cloud centralisé.
+ */
 export const useUIStore = create<UIStoreState>()(
   persist(
     (set) => ({

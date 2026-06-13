@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { getSupabase } from '@/shared/lib/supabase';
 import { sendEmailOTP, verifyEmailOTP } from '@/features/auth/actions/authActions';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Loader2, Sparkles } from 'lucide-react';
+import { Skeleton } from '@/shared/ui/Skeleton';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectPath = searchParams?.get('redirect') || '/';
@@ -51,16 +53,26 @@ export default function LoginPage() {
     const res = await verifyEmailOTP(email, otpCode);
     setIsSubmitting(false);
 
-    if (res.success && res.data) {
+    if (res.success) {
       setSuccessMsg('Connexion réussie ! Redirection...');
       
-      // Stock local session state ou reload pour que le middleware voie le cookie
-      if (res.data.hasProfile && res.data.restaurantId) {
-        // Déjà onboarded: rediriger vers l'admin ou le path d'origine
-        router.push(redirectPath);
+      const supabase = getSupabase()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('restaurant_id')
+          .eq('user_id', user.id)
+          .not('restaurant_id', 'is', null)
+          .single()
+
+        if (profile?.restaurant_id) {
+          router.push(`/${profile.restaurant_id}/builder`)
+        } else {
+          router.push('/onboarding')
+        }
       } else {
-        // Non onboarded: rediriger vers /onboarding
-        router.push('/onboarding');
+        router.push('/onboarding')
       }
     } else {
       setErrorMsg(res.error?.message || 'Le code saisi est invalide.');
@@ -83,7 +95,7 @@ export default function LoginPage() {
             QRMenu Pro
           </h1>
           <p className="text-sm text-stone-500 mt-1.5">
-            L'espace d'administration et d'expérience de commande
+            L&apos;espace d&apos;administration et d&apos;expérience de commande
           </p>
         </div>
 
@@ -153,57 +165,76 @@ export default function LoginPage() {
           </form>
         ) : (
           <form onSubmit={handleVerifyOTP} className="space-y-4">
-            <div>
-              <button
-                type="button"
-                onClick={() => {
-                  setStep('email');
-                  setErrorMsg('');
-                  setSuccessMsg('');
-                }}
-                className="inline-flex items-center gap-1 text-xs text-stone-500 hover:text-stone-700 mb-4 transition focus:outline-none"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                D'accord, utiliser une autre adresse
-              </button>
-              
-              <label htmlFor="otp-input" className="block text-xs font-medium text-stone-600 mb-1.5 uppercase tracking-wider">
-                Code de vérification (6 chiffres)
-              </label>
-              <input
-                id="otp-input"
-                type="text"
-                maxLength={6}
-                required
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                placeholder="123456"
-                className="w-full h-11 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-center text-lg font-mono tracking-widest focus:outline-none focus:border-[#C2410C] focus:bg-white transition"
-              />
-            </div>
+            {isSubmitting ? (
+              <div className="space-y-3 py-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-4 w-3/4 mx-auto" />
+              </div>
+            ) : (
+              <>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep('email');
+                      setErrorMsg('');
+                      setSuccessMsg('');
+                    }}
+                    className="inline-flex items-center gap-1 text-xs text-stone-500 hover:text-stone-700 mb-4 transition focus:outline-none"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    D&apos;accord, utiliser une autre adresse
+                  </button>
+                  
+                  <label htmlFor="otp-input" className="block text-xs font-medium text-stone-600 mb-1.5 uppercase tracking-wider">
+                    Code de vérification (6 chiffres)
+                  </label>
+                  <input
+                    id="otp-input"
+                    type="text"
+                    maxLength={6}
+                    required
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="123456"
+                    className="w-full h-11 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-center text-lg font-mono tracking-widest focus:outline-none focus:border-[#C2410C] focus:bg-white transition"
+                  />
+                </div>
 
-            <button
-              id="btn-verify-otp"
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full h-11 bg-stone-900 hover:bg-[#C2410C] text-white rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Vérification...
-                </>
-              ) : (
-                'Valider et se connecter'
-              )}
-            </button>
-            
-            <p className="text-center text-xs text-stone-400 mt-4">
-              Veuillez saisir les 6 chiffres reçus par email à l'adresse <strong>{email}</strong>.
-            </p>
+                <button
+                  id="btn-verify-otp"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full h-11 bg-stone-900 hover:bg-[#C2410C] text-white rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  Valider et se connecter
+                </button>
+                
+                <p className="text-center text-xs text-stone-400 mt-4">
+                  Veuillez saisir les 6 chiffres reçus par email à l&apos;adresse <strong>{email}</strong>.
+                </p>
+              </>
+            )}
           </form>
         )}
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen w-screen bg-[#FAFAF9] flex items-center justify-center p-6 text-stone-900 font-sans relative overflow-hidden">
+        <div className="w-full max-w-md bg-white border border-[#E7E5E4] rounded-2xl p-8 shadow-[0_1px_3px_rgba(0,0,0,0.05)] relative z-10 flex flex-col gap-6">
+          <Skeleton className="h-8 w-3/4 mx-auto" />
+          <Skeleton className="h-4 w-1/2 mx-auto" />
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-11 w-full" />
+        </div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

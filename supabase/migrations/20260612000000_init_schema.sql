@@ -330,12 +330,30 @@ CREATE POLICY insert_orders_public ON public.orders
 CREATE POLICY insert_order_items_public ON public.order_items
     FOR INSERT TO anon, authenticated WITH CHECK (true);
 
--- Public users can read only their own placed order (typically matched client-side via orderId cookie)
+-- Public users cannot directly select orders without session, mass select is blocked.
+-- Solo les membres authentifiés du staff du restaurant peuvent lire.
 CREATE POLICY select_orders_public ON public.orders
-    FOR SELECT TO anon, authenticated USING (true); -- Client filters locally by list of historic order UUIDs in storage
+    FOR SELECT TO authenticated 
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles 
+            WHERE profiles.user_id = auth.uid() 
+              AND profiles.restaurant_id = orders.restaurant_id
+        )
+    );
 
 CREATE POLICY select_order_items_public ON public.order_items
-    FOR SELECT TO anon, authenticated USING (true);
+    FOR SELECT TO authenticated 
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles 
+            WHERE profiles.user_id = auth.uid() 
+              AND profiles.restaurant_id = (
+                  SELECT restaurant_id FROM public.orders 
+                  WHERE orders.id = order_items.order_id
+              )
+        )
+    );
 
 -- Staff members can read and update orders for their authenticated restaurant_id
 CREATE POLICY manage_orders_staff ON public.orders

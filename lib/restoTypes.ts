@@ -42,7 +42,7 @@ export interface MenuCategory {
   order: number;
 }
 
-export type OrderStatus = 'PENDING' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
+export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
 export type OrderType = 'DINE_IN' | 'DELIVERY';
 
 export interface OrderItem {
@@ -69,6 +69,7 @@ export interface Order {
 }
 
 export interface RestaurantConfig {
+  id?: string;
   slug: string;
   name: string;
   phone: string;

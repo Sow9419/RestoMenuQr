@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useTransition } from 'react';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import { RestaurantConfig, Order, OrderStatus, OrderType, MenuItem, MenuCategory } from '@/lib/restoTypes';
 import { DEFAULT_CONFIG } from '@/lib/defaultData';
 
@@ -35,13 +36,38 @@ export function RestoProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isPollingActive, setPollingActive] = useState<boolean>(true);
   
+  const pathname = usePathname() || '';
+  const params = useParams();
+  const router = useRouter();
+  const restaurantId = params?.restaurantId as string;
+
   // Custom transition for tab switches to ensure high-performance UI
   const [, startTransition] = useTransition();
+
+  // Sync active state from URL pathname
+  useEffect(() => {
+    if (pathname) {
+      const segments = pathname.split('/').filter(Boolean);
+      if (segments.length >= 2) {
+        const tab = segments[1];
+        if (['dashboard', 'orders', 'pos', 'builder', 'settings'].includes(tab)) {
+          const timer = setTimeout(() => {
+            setActiveTabState(tab as any);
+          }, 0);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+  }, [pathname]);
+
   const setActiveTab = useCallback((tab: 'dashboard' | 'orders' | 'pos' | 'builder' | 'settings') => {
     startTransition(() => {
       setActiveTabState(tab);
+      if (restaurantId) {
+        router.push(`/${restaurantId}/${tab}`);
+      }
     });
-  }, []);
+  }, [restaurantId, router]);
 
   // Simulation settings (saved to memory/session)
   const [isNetworkSimulatedOffline, setNetworkSimulatedOffline] = useState<boolean>(false);

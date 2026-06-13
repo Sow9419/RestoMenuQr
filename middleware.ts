@@ -1,47 +1,80 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
 /**
- * Next.js Edge-compatible Middleware to protect Admin Routes.
- * Screens for '/builder', '/orders', '/pos', '/dashboard', and '/settings' sub-directories
- * and verifies authentication credentials transparently.
+ * Middleware Supabase — Deux rôles :
+ * 1. Rafraîchir le token de session sur chaque requête (requis pour SSR Supabase)
+ * 2. Rediriger `/` vers `/login` si l'utilisateur n'est pas authentifié
+ *
+ * La protection fine des routes admin est déléguée au layout `(admin)`.
+ * Voir : ARCHITECTURE.md — Middleware + ROLES_AND_PERMISSIONS.md
  */
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname } = request.nextUrl
 
-  // Match admin functional routes defined in architecture
-  const isAdminRoute =
-    pathname.includes('/builder') ||
-    pathname.includes('/orders') ||
-    pathname.includes('/pos') ||
-    pathname.includes('/dashboard') ||
-    pathname.includes('/settings');
-
-  if (isAdminRoute) {
-    // Collect all cookies and detect Supabase standard session tokens
-    const allCookies = request.cookies.getAll();
-    const hasSupabaseSession = allCookies.some((cookie) =>
-      cookie.name.startsWith('sb-')
-    );
-
-    if (!hasSupabaseSession) {
-      // Redirect to login page and preserve original target path
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+  // Laisser passer les assets Next.js internes
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js)$/.test(pathname)
+  ) {
+    return NextResponse.next({ request })
   }
 
-  return NextResponse.next();
+  let response = NextResponse.next({ request })
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url || !anonKey || !url.startsWith('http')) {
+    return response
+  }
+
+  const supabase = createServerClient(
+    url,
+    anonKey,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            request.cookies.set({ name, value, ...options })
+          )
+          response = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  // Rafraîchir la session (NE PAS utiliser getSession() ici — non sécurisé côté serveur)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Rediriger la racine `/` vers /login si non authentifié
+  // Ceci remplace l'ancien prototype dashboard (app/page.tsx)
+  if (pathname === '/' && !user) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  // Protéger les routes admin si l'utilisateur n'est pas connecté
+  const segments = pathname.split('/').filter(Boolean);
+  const isAdminPath = segments.length >= 2 && ['builder', 'orders', 'pos', 'dashboard', 'settings'].includes(segments[1]);
+
+  if (isAdminPath && !user) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  return response
 }
 
-/**
- * Configure middleware path matching.
- * Excludes static files, Next.js internal variables, api endpoints, and media folders.
- */
 export const config = {
   matcher: [
-    // Matches all routes except api, static assets, and dev files
-    '/((?!_next/static|_next/image|favicon.ico|api/sync|api/webhooks|.*\\.).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-};
+}

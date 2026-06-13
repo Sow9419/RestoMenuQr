@@ -1,17 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSupabase } from '@/shared/lib/supabase';
 import { createRestaurantWithOrg } from '@/features/onboarding/actions/onboardingActions';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, Sparkles, UtensilsCrossed, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Skeleton } from '@/shared/ui/Skeleton';
 
 export default function OnboardingPage() {
   const router = useRouter();
-  
-  const [userId, setUserId] = useState<string | null>(null);
-  const [checkingAuth, setCheckingAuth] = useState(true);
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
@@ -21,27 +18,6 @@ export default function OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-
-  // Check auth on load
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const supabase = getSupabase();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          router.push('/login?redirect=/onboarding');
-        } else {
-          setUserId(user.id);
-        }
-      } catch (err) {
-        console.error('Error checking auth', err);
-        router.push('/login?redirect=/onboarding');
-      } finally {
-        setCheckingAuth(false);
-      }
-    };
-    checkUser();
-  }, [router]);
 
   // Autogenerate slug from restaurant name
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +46,7 @@ export default function OnboardingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !slug || !userId) {
+    if (!name || !slug) {
       setErrorMsg('Veuillez remplir les champs obligatoires.');
       return;
     }
@@ -79,7 +55,7 @@ export default function OnboardingPage() {
     setErrorMsg('');
     setSuccessMsg('');
 
-    const res = await createRestaurantWithOrg(userId, {
+    const res = await createRestaurantWithOrg({
       name,
       slug,
       phone: phone || undefined,
@@ -91,23 +67,12 @@ export default function OnboardingPage() {
     if (res.success) {
       setSuccessMsg('Votre restaurant et son espace ont été créés avec succès !');
       setTimeout(() => {
-        router.push('/');
+        router.push(`/${res.data.restaurantId}/builder`);
       }, 1500);
     } else {
       setErrorMsg(res.error?.message || 'Une erreur est survenue lors de la création.');
     }
   };
-
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen w-screen bg-[#FAFAF9] flex items-center justify-center text-stone-900">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#C2410C]" />
-          <p className="text-sm text-stone-500">Chargement de votre session...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen w-screen bg-[#FAFAF9] flex items-center justify-center p-6 text-stone-900 font-sans relative overflow-hidden">
@@ -119,14 +84,14 @@ export default function OnboardingPage() {
         {/* Step Indicator */}
         <div className="flex items-center gap-1 text-xs font-semibold text-[#C2410C] tracking-wide uppercase mb-3">
           <Sparkles className="w-4 h-4" />
-          <span>Étape Finale d'Onboarding</span>
+          <span>Étape Finale d&apos;Onboarding</span>
         </div>
 
         <h1 className="text-2xl font-semibold tracking-tight text-stone-950 font-serif mb-2">
           Créez votre premier restaurant
         </h1>
         <p className="text-stone-500 text-sm mb-8 leading-relaxed">
-          Saisissez les informations clés pour modéliser votre menu numérique interactif et votre espace d'encaissement unifié.
+          Saisissez les informations clés pour modéliser votre menu numérique interactif et votre espace d&apos;encaissement unifié.
         </p>
 
         {/* Global Notifications */}
@@ -157,99 +122,116 @@ export default function OnboardingPage() {
           )}
         </AnimatePresence>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 gap-5">
-            {/* Restaurant Name */}
-            <div>
-              <label htmlFor="restaurant-name" className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
-                Nom du Restaurant *
-              </label>
-              <input
-                id="restaurant-name"
-                type="text"
-                required
-                value={name}
-                onChange={handleNameChange}
-                placeholder="Le Palais du Chef"
-                className="w-full h-11 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-sm focus:outline-none focus:border-[#C2410C] focus:bg-white transition"
-              />
+        {isSubmitting ? (
+          <div className="space-y-5 py-4" id="onboarding-loading-skeleton">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-1/3" />
+              <Skeleton className="h-11 w-full" />
             </div>
-
-            {/* Custom Slug / URL Link */}
-            <div>
-              <label htmlFor="restaurant-slug" className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
-                Lien personnalisé du Menu *
-              </label>
-              <div className="relative flex items-center">
-                <span className="absolute left-3.5 text-xs text-stone-400 font-mono select-none">
-                  qrmenu.pro/
-                </span>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-1/4" />
+              <Skeleton className="h-11 w-full" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-11 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-11 w-full" />
+              </div>
+            </div>
+            <Skeleton className="h-12 w-full mt-6" />
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-5">
+              {/* Restaurant Name */}
+              <div>
+                <label htmlFor="restaurant-name" className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
+                  Nom du Restaurant *
+                </label>
                 <input
-                  id="restaurant-slug"
+                  id="restaurant-name"
                   type="text"
                   required
-                  value={slug}
-                  onChange={handleSlugChange}
-                  placeholder="le-palais-du-chef"
-                  className="w-full h-11 pl-[90px] pr-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-sm font-mono focus:outline-none focus:border-[#C2410C] focus:bg-white transition"
-                />
-              </div>
-              <p className="text-[11px] text-stone-400 mt-1.5 leading-normal">
-                C'est l'adresse unique que vos clients scanneront pour accéder directement à votre carte de plats.
-              </p>
-            </div>
-
-            {/* Additional Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="restaurant-phone" className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
-                  Numéro de Téléphone (Optionnel)
-                </label>
-                <input
-                  id="restaurant-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+221770000000"
+                  value={name}
+                  onChange={handleNameChange}
+                  placeholder="Le Palais du Chef"
                   className="w-full h-11 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-sm focus:outline-none focus:border-[#C2410C] focus:bg-white transition"
                 />
               </div>
 
+              {/* Custom Slug / URL Link */}
               <div>
-                <label htmlFor="restaurant-address" className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
-                  Adresse Physique (Optionnel)
+                <label htmlFor="restaurant-slug" className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
+                  Lien personnalisé du Menu *
                 </label>
-                <input
-                  id="restaurant-address"
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Dakar, Sénégal"
-                  className="w-full h-11 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-sm focus:outline-none focus:border-[#C2410C] focus:bg-white transition"
-                />
+                <div className="relative flex items-center">
+                  <span className="absolute left-3.5 text-xs text-stone-400 font-mono select-none">
+                    qrmenu.pro/
+                  </span>
+                  <input
+                    id="restaurant-slug"
+                    type="text"
+                    required
+                    value={slug}
+                    onChange={handleSlugChange}
+                    placeholder="le-palais-du-chef"
+                    className="w-full h-11 pl-[90px] pr-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-sm font-mono focus:outline-none focus:border-[#C2410C] focus:bg-white transition"
+                  />
+                </div>
+                <p className="text-[11px] text-stone-400 mt-1.5 leading-normal">
+                  C&apos;est l&apos;adresse unique que vos clients scanneront pour accéder directement à votre carte de plats.
+                </p>
+              </div>
+
+              {/* Additional Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="restaurant-phone" className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
+                    Numéro de Téléphone (Optionnel)
+                  </label>
+                  <input
+                    id="restaurant-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+221770000000"
+                    className="w-full h-11 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-sm focus:outline-none focus:border-[#C2410C] focus:bg-white transition"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="restaurant-address" className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
+                    Adresse Physique (Optionnel)
+                  </label>
+                  <input
+                    id="restaurant-address"
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Dakar, Sénégal"
+                    className="w-full h-11 px-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 text-sm focus:outline-none focus:border-[#C2410C] focus:bg-white transition"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <button
-            id="btn-submit-onboarding"
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full h-12 bg-stone-900 hover:bg-[#C2410C] text-white rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Création en cours de votre espace...
-              </>
-            ) : (
+            <button
+              id="btn-submit-onboarding"
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-12 bg-stone-900 hover:bg-[#C2410C] text-white rounded-xl text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
+            >
               <>
                 <span>Créer et Accéder à mon Espace</span>
                 <ArrowRight className="w-4 h-4" />
               </>
-            )}
-          </button>
-        </form>
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

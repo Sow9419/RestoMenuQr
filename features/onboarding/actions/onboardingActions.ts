@@ -1,6 +1,7 @@
 'use server';
 
 import { getSupabaseAdmin } from '@/shared/lib/supabase';
+import { getSupabaseServerClient } from '@/shared/lib/supabaseServer';
 import { ActionResponse } from '@/shared/types/action';
 
 export interface OnboardingData {
@@ -15,10 +16,23 @@ export interface OnboardingData {
  * pour l'utilisateur fraîchement authentifié sans profil.
  */
 export async function createRestaurantWithOrg(
-  userId: string,
   data: OnboardingData
 ): Promise<ActionResponse<{ restaurantId: string; organizationId: string }>> {
   try {
+    const supabaseServer = await getSupabaseServerClient();
+    const { data: { user }, error: authError } = await supabaseServer.auth.getUser();
+
+    if (authError || !user) {
+      return {
+        success: false,
+        error: {
+          code: 'ERR_UNAUTHORIZED',
+          message: 'Vous devez être connecté pour configurer votre restaurant.',
+        },
+      };
+    }
+
+    const userId = user.id;
     const supabaseAdmin = getSupabaseAdmin();
     
     // Normalize and validate the slug

@@ -103,6 +103,7 @@ export default function OrderManagerPage() {
   const filteredOrders = orders.filter(ord => {
     if (filterStatus === 'ALL') return true;
     if (filterStatus === 'PENDING') return ord.status === 'PENDING';
+    if (filterStatus === 'CONFIRMED') return ord.status === 'CONFIRMED';
     if (filterStatus === 'PREPARING') return ord.status === 'PREPARING';
     if (filterStatus === 'READY') return ord.status === 'READY';
     if (filterStatus === 'ARCHIVED') return ord.status === 'COMPLETED' || ord.status === 'CANCELLED';
@@ -113,6 +114,8 @@ export default function OrderManagerPage() {
     switch (status) {
       case 'PENDING':
         return <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">⏳ En attente</span>;
+      case 'CONFIRMED':
+        return <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-200 flex items-center gap-1">🍊 Confirmée</span>;
       case 'PREPARING':
         return <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">👨‍🍳 En Cuisine</span>;
       case 'READY':
@@ -120,7 +123,7 @@ export default function OrderManagerPage() {
       case 'COMPLETED':
         return <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-stone-100 text-stone-600 border border-stone-200 flex items-center gap-1">✅ Terminé</span>;
       case 'CANCELLED':
-        return <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-red-50 text-red-600 border border-red-200 flex items-center gap-1">❌ Annulé</span>;
+        return <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-red-50 text-red-650 border border-red-200 flex items-center gap-1">❌ Annulé</span>;
     }
   };
 
@@ -160,6 +163,7 @@ export default function OrderManagerPage() {
           {[
             { id: 'ALL', label: 'Toutes' },
             { id: 'PENDING', label: 'En attente' },
+            { id: 'CONFIRMED', label: 'Confirmées' },
             { id: 'PREPARING', label: 'En cuisine' },
             { id: 'READY', label: 'Prêtes' },
             { id: 'ARCHIVED', label: 'Archivées' }
@@ -199,6 +203,7 @@ export default function OrderManagerPage() {
               transition={{ duration: 0.25 }}
               className={`bg-white border rounded-2xl overflow-hidden shadow-xs flex flex-col ${
                 ord.status === 'PENDING' ? 'border-amber-300 ring-2 ring-amber-500/5' :
+                ord.status === 'CONFIRMED' ? 'border-orange-250 ring-2 ring-orange-500/5' :
                 ord.status === 'PREPARING' ? 'border-blue-300' :
                 ord.status === 'READY' ? 'border-emerald-300' :
                 'border-[#E7E5E4]'
@@ -274,7 +279,7 @@ export default function OrderManagerPage() {
 
               {/* Card Footer Actions */}
               <div className="p-3 bg-[#FAFAF9]/60 border-t border-[#E7E5E4] flex justify-end gap-2">
-                {/* Pending -> Prepare */}
+                {/* Pending -> Confirmed */}
                 {ord.status === 'PENDING' && (
                   <>
                     <button
@@ -282,6 +287,24 @@ export default function OrderManagerPage() {
                       className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-red-50 text-red-650 border border-stone-200 hover:border-red-250 cursor-pointer transition-all"
                     >
                       Refuser
+                    </button>
+                    <button
+                      onClick={() => updateOrderStatusOnServer(ord.id, 'CONFIRMED')}
+                      className="px-4 py-1.5 rounded-lg text-xs font-bold bg-amber-50 hover:bg-orange-100/80 border border-orange-250 text-orange-600 flex items-center gap-1.5 cursor-pointer transition-all"
+                    >
+                      Confirmer la commande
+                    </button>
+                  </>
+                )}
+
+                {/* Confirmed -> Preparing */}
+                {ord.status === 'CONFIRMED' && (
+                  <>
+                    <button
+                      onClick={() => updateOrderStatusOnServer(ord.id, 'CANCELLED')}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-red-50 text-red-650 border border-stone-200 hover:border-red-250 cursor-pointer transition-all"
+                    >
+                      Annuler
                     </button>
                     <button
                       onClick={() => updateOrderStatusOnServer(ord.id, 'PREPARING')}

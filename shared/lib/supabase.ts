@@ -12,11 +12,9 @@ export function getSupabase(): SupabaseClient {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
-    if (!url || !anonKey) {
-      // Return a dummy client in development or throw, wait but throwing prevents server startup crash
-      // if it's only called on action. If we throw on access, it is perfectly safe.
+    if (!url || !anonKey || !url.startsWith('http')) {
       throw new Error(
-        'Supabase URL or Anon Key is missing. Please configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
+        'Supabase URL is missing or invalid. Please configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to be valid HTTP/HTTPS URLs.'
       );
     }
     
@@ -57,9 +55,9 @@ export function getSupabaseAdmin(): SupabaseClient {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     
-    if (!url || !serviceKey) {
+    if (!url || !serviceKey || !url.startsWith('http')) {
       throw new Error(
-        'Supabase URL or Service Role Key is missing. Please configure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.'
+        'Supabase URL is missing or invalid. Please configure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to be valid HTTP/HTTPS URLs.'
       );
     }
     
