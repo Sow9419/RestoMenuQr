@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { use } from 'react';
 import MenuInitializer from '@/features/menu/components/MenuInitializer';
 import { useMenuStore } from '@/features/menu/store/menu.store';
-import ClientMenu from '@/components/ClientMenu';
+import ClientMenu from '@/features/menu/components/ClientMenu';
 import { Coffee, SearchCode, ArrowRight, Store } from 'lucide-react';
 
 // ─── Inner Content ────────────────────────────────────────────────────────────

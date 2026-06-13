@@ -79,7 +79,7 @@ export default function ClientMenu({ isPreview = false }: ClientMenuProps) {
     if (config) {
       cartStore.syncAvailability(config.items, config.isOpen);
     }
-  }, [config]);
+  }, [config, cartStore]);
 
   // Toast feedback duration
   useEffect(() => {

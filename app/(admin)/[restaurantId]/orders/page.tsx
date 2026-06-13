@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import OrderManagerPage from '@/components/OrderManagerPage';
+import OrderManagerPage from '@/features/order/components/OrderManagerPage';
 
 export default function OrdersPage() {
   return <OrderManagerPage />;
