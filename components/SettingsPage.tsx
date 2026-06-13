@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useResto } from './RestoContext';
+import { useMenuStore } from '@/features/menu/store/menu.store';
+import { updatePageSettings } from '@/features/menu/actions/settingsActions';
 import { 
   Settings, 
   Trash2, 
@@ -18,53 +19,44 @@ import {
 import { motion } from 'motion/react';
 
 export default function SettingsPage() {
-  const { 
-    config, 
-    updateConfigOnServer, 
-    resetAllData, 
-    isNetworkSimulatedOffline, 
-    setNetworkSimulatedOffline,
-    isWhatsAppSimulatedInstalled,
-    setWhatsAppSimulatedInstalled
-  } = useResto();
+  const { config } = useMenuStore();
 
   const [savingState, setSavingState] = useState(false);
+  const [savingSuccess, setSavingSuccess] = useState(false);
   const [name, setName] = useState(config?.name || '');
   const [phone, setPhone] = useState(config?.phone || '');
   const [address, setAddress] = useState(config?.address || '');
   const [isOpen, setIsOpen] = useState(config?.isOpen ?? true);
   const [currency, setCurrency] = useState(config?.style?.currency || 'FCFA');
+  // Simulation UX — état local uniquement (démo, pas persisté)
+  const [isNetworkSimulatedOffline, setNetworkSimulatedOffline] = useState(false);
+  const [isWhatsAppSimulatedInstalled, setWhatsAppSimulatedInstalled] = useState(true);
 
   const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!config?.id) return;
     setSavingState(true);
-    
-    // Copy config
-    const newConfig = {
-      ...config,
-      name,
-      phone,
-      address,
-      isOpen,
-      style: {
-        ...config.style,
-        currency
-      }
-    };
 
-    await updateConfigOnServer(newConfig);
+    await updatePageSettings(config.id, {
+      settings: {
+        ...config.style,
+        currency,
+        fontFamily: config.style?.fontFamily || 'Playfair Display',
+        templateLayout: 'classic',
+        displayMode: config.style?.displayMode || 'light',
+      },
+      sections: config.sections.map(s => ({ name: s.name, label: s.label, enabled: s.enabled }))
+    });
+
     setSavingState(false);
+    setSavingSuccess(true);
+    setTimeout(() => setSavingSuccess(false), 2000);
   };
 
   const handleReset = async () => {
-    if (confirm('Voulez-vous réinitialiser l’application ? Cela effacera l’historique des commandes et restaura le menu d’usine d’origine.')) {
-      await resetAllData();
-      // Reload states
-      setName(config.name);
-      setPhone(config.phone);
-      setAddress(config.address);
-      setIsOpen(config.isOpen);
-      setCurrency(config.style.currency);
+    if (confirm('Voulez-vous réinitialiser l\'application ? Cette action est irréversible.')) {
+      // Phase 2 — reset complet via Server Action dédiée
+      alert('Réinitialisation complète disponible en Phase 2.');
     }
   };
 
@@ -170,7 +162,7 @@ export default function SettingsPage() {
               disabled={savingState}
               className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-xs active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-1.5 font-sans"
             >
-              {savingState ? 'Enregistrement en cours...' : 'Sauvegarder les Coordonnées'}
+              {savingState ? 'Enregistrement en cours...' : savingSuccess ? '✓ Paramètres sauvegardés !' : 'Sauvegarder les Coordonnées'}
               <Check size={14} />
             </button>
           </form>

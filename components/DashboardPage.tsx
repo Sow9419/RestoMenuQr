@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useResto } from './RestoContext';
+import { useMenuStore } from '@/features/menu/store/menu.store';
+import { useOrderStore } from '@/features/order/store/order.store';
 import { 
   TrendingUp, 
   ShoppingBag, 
@@ -16,7 +17,8 @@ import {
 import { motion } from 'motion/react';
 
 export default function DashboardPage() {
-  const { orders, config, refreshData, isLoading } = useResto();
+  const { config, isLoading } = useMenuStore();
+  const { orders } = useOrderStore();
 
   // Computations
   const completedOrders = orders.filter(o => o.status === 'COMPLETED');
@@ -70,7 +72,7 @@ export default function DashboardPage() {
         </div>
         
         <button 
-          onClick={() => refreshData()}
+          onClick={() => window.location.reload()}
           disabled={isLoading}
           className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg border transition-all cursor-pointer disabled:opacity-50 ${
             isLight 

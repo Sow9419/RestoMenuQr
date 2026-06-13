@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useResto } from './RestoContext';
+import { useMenuStore } from '@/features/menu/store/menu.store';
+import { updatePageSettings } from '@/features/menu/actions/settingsActions';
+import { createCategory, updateCategory, deleteCategory } from '@/features/menu/actions/categoryActions';
+import { createProduct, updateProduct, deleteProduct } from '@/features/menu/actions/productActions';
 import { 
   Layers, 
   Paintbrush, 
@@ -29,7 +32,7 @@ import { MenuCategory, MenuItem, RestaurantSection } from '@/lib/restoTypes';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function BuilderPanel() {
-  const { config, updateConfigOnServer } = useResto();
+  const { config, updateStyle, updateSections, updateCategories, updateItems } = useMenuStore();
   
   // Tab within Builder Panel: 'SECTIONS' | 'STYLE' | 'CONTENT' | 'PARTAGE'
   const [activeSubTab, setActiveSubTab] = useState<'SECTIONS' | 'STYLE' | 'CONTENT' | 'PARTAGE'>('SECTIONS');
@@ -59,20 +62,36 @@ export default function BuilderPanel() {
     'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=40&w=200'
   ];
 
-  // Helper sync
-  const pushConfigUpdate = (updatedConfig: typeof config) => {
-    updateConfigOnServer(updatedConfig);
+  // Helper for optimistic style/sections update + server persist
+  const pushStyleUpdate = (updatedStyle: NonNullable<typeof config>['style']) => {
+    if (!config?.id) return;
+    updateStyle(updatedStyle);
+    updatePageSettings(config.id, {
+      settings: updatedStyle,
+      sections: config.sections.map(s => ({ name: s.name, label: s.label, enabled: s.enabled }))
+    });
+  };
+
+  const pushSectionsUpdate = (updatedSections: NonNullable<typeof config>['sections']) => {
+    if (!config?.id) return;
+    updateSections(updatedSections);
+    updatePageSettings(config.id, {
+      settings: config.style,
+      sections: updatedSections.map(s => ({ name: s.name, label: s.label, enabled: s.enabled }))
+    });
   };
 
   // ----- SUB-SECTION 1: REORDER / TOGGLE SECTIONS -----
   const handleToggleSection = (sectionId: string) => {
+    if (!config) return;
     const updatedSections = config.sections.map(s => 
       s.id === sectionId ? { ...s, enabled: !s.enabled } : s
     );
-    pushConfigUpdate({ ...config, sections: updatedSections });
+    pushSectionsUpdate(updatedSections);
   };
 
   const handleMoveSection = (index: number, direction: 'UP' | 'DOWN') => {
+    if (!config) return;
     const nextIndex = direction === 'UP' ? index - 1 : index + 1;
     if (nextIndex < 0 || nextIndex >= config.sections.length) return;
 
@@ -81,16 +100,17 @@ export default function BuilderPanel() {
     updatedSections[index] = updatedSections[nextIndex];
     updatedSections[nextIndex] = temp;
 
-    pushConfigUpdate({ ...config, sections: updatedSections });
+    pushSectionsUpdate(updatedSections);
   };
 
   // ----- SUB-SECTION 2: CUSTOM STYLE VALUES -----
   const handleStyleChange = (field: string, value: any) => {
+    if (!config) return;
     const updatedStyle = {
       ...config.style,
       [field]: value
     };
-    pushConfigUpdate({ ...config, style: updatedStyle });
+    pushStyleUpdate(updatedStyle);
   };
 
   // Preset accent colors
@@ -105,6 +125,7 @@ export default function BuilderPanel() {
 
   // ----- SUB-SECTION 3: CRUD CATEGORIES -----
   const handleOpenCatAdd = () => {
+    if (!config) return;
     setCatName('');
     setCatIcon('Coffee');
     setShowCatModal({ mode: 'add' });
@@ -118,7 +139,7 @@ export default function BuilderPanel() {
 
   const handleSaveCategory = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!catName.trim()) return;
+    if (!config || !catName.trim()) return;
 
     let updatedCategories = [...config.categories];
 
@@ -137,19 +158,31 @@ export default function BuilderPanel() {
       );
     }
 
-    pushConfigUpdate({ ...config, categories: updatedCategories });
+    // Optimistic UI update
+    updateCategories(updatedCategories);
+    // Server persist
+    if (!config?.id) { setShowCatModal(null); return; }
+    if (showCatModal.mode === 'add') {
+      createCategory(config.id, catName);
+    } else {
+      updateCategory(config.id, showCatModal.cat.id, catName);
+    }
     setShowCatModal(null);
   };
 
   const handleDeleteCategory = (catId: string) => {
+    if (!config) return;
     if (confirm('Voulez-vous vraiment supprimer cette catégorie ? Tous les plats rattachés resteront mais perdront leur dossier de tri.')) {
       const updatedCategories = config.categories.filter(c => c.id !== catId);
-      pushConfigUpdate({ ...config, categories: updatedCategories });
+      // Optimistic UI + Server Action
+      updateCategories(updatedCategories);
+      if (config?.id) deleteCategory(config.id, catId);
     }
   };
 
   // ----- SUB-SECTION 4: CRUD DISHES -----
   const handleOpenDishAdd = () => {
+    if (!config) return;
     setDishName('');
     setDishCategoryId(config.categories[0]?.id || '');
     setDishDescription('');
@@ -171,7 +204,7 @@ export default function BuilderPanel() {
 
   const handleSaveDish = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!dishName.trim()) return;
+    if (!config || !dishName.trim()) return;
 
     let updatedItems = [...config.items];
 
@@ -204,18 +237,51 @@ export default function BuilderPanel() {
       );
     }
 
-    pushConfigUpdate({ ...config, items: updatedItems });
+    // Optimistic UI update
+    updateItems(updatedItems);
+    // Server persist
+    if (!config?.id) { setShowDishModal(null); return; }
+    if (showDishModal.mode === 'add') {
+      createProduct(config.id, {
+        categoryId: dishCategoryId,
+        name: dishName,
+        description: dishDescription,
+        price: Number(dishPrice),
+        imageUrl: dishImageUrl,
+        isAvailable: dishIsAvailable,
+      });
+    } else {
+      updateProduct(config.id, showDishModal.item.id, {
+        name: dishName,
+        categoryId: dishCategoryId,
+        description: dishDescription,
+        price: Number(dishPrice),
+        imageUrl: dishImageUrl,
+        isAvailable: dishIsAvailable,
+      });
+    }
     setShowDishModal(null);
   };
 
   const handleDeleteDish = (itemId: string) => {
+    if (!config) return;
     if (confirm('Voulez-vous supprimer ce plat de la carte client ?')) {
       const updatedItems = config.items.filter(it => it.id !== itemId);
-      pushConfigUpdate({ ...config, items: updatedItems });
+      // Optimistic UI + Server Action
+      updateItems(updatedItems);
+      if (config?.id) deleteProduct(config.id, itemId);
     }
   };
 
   const isLight = true; // Always light theme for merchant panel
+
+  if (!config) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-[#FAFAF9] text-stone-500 font-sans text-xs">
+        <span>Chargement de la configuration...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col font-sans relative overflow-hidden h-full bg-[#FAFAF9] text-[#1C1917]">

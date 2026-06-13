@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useResto } from './RestoContext';
+import { usePathname, useRouter, useParams } from 'next/navigation';
+import { useMenuStore } from '@/features/menu/store/menu.store';
+import { useOrderStore } from '@/features/order/store/order.store';
 import { 
   LayoutDashboard, 
   ShoppingBag, 
@@ -19,9 +21,24 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function CollapsibleSidebar() {
-  const { activeTab, setActiveTab, config, orders } = useResto();
+  const pathname = usePathname() || '';
+  const router = useRouter();
+  const params = useParams();
+  const restaurantId = params?.restaurantId as string;
+  const { config } = useMenuStore();
+  const { orders } = useOrderStore();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const isLight = true; // Always warm-light theme for merchant panel
+
+  // Derive activeTab from URL pathname
+  const segments = pathname.split('/').filter(Boolean);
+  const activeTab = segments[1] || 'builder';
+
+  const setActiveTab = (tab: string) => {
+    if (restaurantId) {
+      router.push(`/${restaurantId}/${tab}`);
+    }
+  };
 
   // Count pending or preparing orders
   const activeOrdersCount = orders.filter(

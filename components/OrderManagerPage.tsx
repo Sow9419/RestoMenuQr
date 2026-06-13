@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useResto } from './RestoContext';
+import { useMenuStore } from '@/features/menu/store/menu.store';
+import { useOrderStore } from '@/features/order/store/order.store';
+import { createOrder, updateOrderStatus } from '@/features/order/actions/orderActions';
 import { 
   ClipboardList, 
   MapPin, 
@@ -89,14 +91,19 @@ function generateRandomMockOrder(config: any): Partial<Order> | null {
 }
 
 export default function OrderManagerPage() {
-  const { orders, config, updateOrderStatusOnServer, deleteOrderOnServer, addOrderOnServer } = useResto();
+  const { config } = useMenuStore();
+  const { orders, addOrder: pushOrderLocally, updateOrderStatus: updateLocalStatus, deleteOrder: deleteLocalOrder } = useOrderStore();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
 
   // Generate a random mock order to help test the full synchronization flow instantly
   const handleCreateSimulatedOrder = async () => {
+    if (!config?.id) return;
     const simulatedData = generateRandomMockOrder(config);
     if (!simulatedData) return;
-    await addOrderOnServer(simulatedData);
+    const response = await createOrder(config.id, simulatedData);
+    if (response.success) {
+      pushOrderLocally(response.data);
+    }
   };
 
   // Filtering
@@ -283,13 +290,21 @@ export default function OrderManagerPage() {
                 {ord.status === 'PENDING' && (
                   <>
                     <button
-                      onClick={() => updateOrderStatusOnServer(ord.id, 'CANCELLED')}
+                      onClick={() => {
+                    if (!config?.id) return;
+                    updateLocalStatus(ord.id, 'CANCELLED');
+                    updateOrderStatus(config.id, ord.id, 'CANCELLED');
+                  }}
                       className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-red-50 text-red-650 border border-stone-200 hover:border-red-250 cursor-pointer transition-all"
                     >
                       Refuser
                     </button>
                     <button
-                      onClick={() => updateOrderStatusOnServer(ord.id, 'CONFIRMED')}
+                      onClick={() => {
+                    if (!config?.id) return;
+                    updateLocalStatus(ord.id, 'CONFIRMED');
+                    updateOrderStatus(config.id, ord.id, 'CONFIRMED');
+                  }}
                       className="px-4 py-1.5 rounded-lg text-xs font-bold bg-amber-50 hover:bg-orange-100/80 border border-orange-250 text-orange-600 flex items-center gap-1.5 cursor-pointer transition-all"
                     >
                       Confirmer la commande
@@ -301,13 +316,21 @@ export default function OrderManagerPage() {
                 {ord.status === 'CONFIRMED' && (
                   <>
                     <button
-                      onClick={() => updateOrderStatusOnServer(ord.id, 'CANCELLED')}
+                      onClick={() => {
+                        if (!config?.id) return;
+                        updateLocalStatus(ord.id, 'CANCELLED');
+                        updateOrderStatus(config.id, ord.id, 'CANCELLED');
+                      }}
                       className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-red-50 text-red-650 border border-stone-200 hover:border-red-250 cursor-pointer transition-all"
                     >
                       Annuler
                     </button>
                     <button
-                      onClick={() => updateOrderStatusOnServer(ord.id, 'PREPARING')}
+                      onClick={() => {
+                    if (!config?.id) return;
+                    updateLocalStatus(ord.id, 'PREPARING');
+                    updateOrderStatus(config.id, ord.id, 'PREPARING');
+                  }}
                       className="px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-250 text-emerald-600 flex items-center gap-1.5 cursor-pointer transition-all"
                     >
                       Lancer la préparation
@@ -319,13 +342,21 @@ export default function OrderManagerPage() {
                 {ord.status === 'PREPARING' && (
                   <>
                     <button
-                      onClick={() => updateOrderStatusOnServer(ord.id, 'CANCELLED')}
+                      onClick={() => {
+                        if (!config?.id) return;
+                        updateLocalStatus(ord.id, 'CANCELLED');
+                        updateOrderStatus(config.id, ord.id, 'CANCELLED');
+                      }}
                       className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-red-50 text-red-650 border border-stone-200 hover:border-red-250 cursor-pointer transition-all"
                     >
                       Annuler
                     </button>
                     <button
-                      onClick={() => updateOrderStatusOnServer(ord.id, 'READY')}
+                      onClick={() => {
+                    if (!config?.id) return;
+                    updateLocalStatus(ord.id, 'READY');
+                    updateOrderStatus(config.id, ord.id, 'READY');
+                  }}
                       className="px-4 py-1.5 rounded-lg text-xs font-bold bg-blue-50 hover:bg-blue-100/80 border border-blue-205 text-blue-600 flex items-center gap-1.5 cursor-pointer transition-all font-sans"
                     >
                       Marquer Prêt en cuisine
@@ -337,7 +368,11 @@ export default function OrderManagerPage() {
                 {ord.status === 'READY' && (
                   <>
                     <button
-                      onClick={() => updateOrderStatusOnServer(ord.id, 'COMPLETED')}
+                      onClick={() => {
+                    if (!config?.id) return;
+                    updateLocalStatus(ord.id, 'COMPLETED');
+                    updateOrderStatus(config.id, ord.id, 'COMPLETED');
+                  }}
                       className="px-4 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs flex items-center gap-1.5 cursor-pointer transition-all font-sans"
                     >
                       Encaisser & Compléter
@@ -348,7 +383,7 @@ export default function OrderManagerPage() {
                 {/* Completed / Cancelled -> Trash action */}
                 {(ord.status === 'COMPLETED' || ord.status === 'CANCELLED') && (
                   <button
-                    onClick={() => deleteOrderOnServer(ord.id)}
+                    onClick={() => deleteLocalOrder(ord.id)}
                     className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-red-50 text-red-600 flex items-center gap-1.5 border border-[#E7E5E4] cursor-pointer transition-all"
                   >
                     <Trash2 size={12} />

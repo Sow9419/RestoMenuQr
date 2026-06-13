@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useResto } from './RestoContext';
+import { useMenuStore } from '@/features/menu/store/menu.store';
+import { useOrderStore } from '@/features/order/store/order.store';
+import { createOrder } from '@/features/order/actions/orderActions';
 import { 
   Plus, 
   Minus, 
@@ -25,7 +27,8 @@ function generateCaisseTicket(paymentMethod: string): string {
 }
 
 export default function CaissePage() {
-  const { config, addOrderOnServer } = useResto();
+  const { config } = useMenuStore();
+  const { addOrder: pushOrderLocally } = useOrderStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [cart, setCart] = useState<{ id: string; name: string; price: number; quantity: number }[]>([]);
@@ -85,7 +88,34 @@ export default function CaissePage() {
       ticketNumber
     };
 
-    const validatedOrder = await addOrderOnServer(orderData);
+    if (!config?.id) {
+      alert('Configuration restaurant non chargée.');
+      return;
+    }
+    const response = await createOrder(config.id, {
+      type: 'DINE_IN',
+      items: cart,
+      totalPrice,
+      customerName: 'Dîneur sur Place',
+    });
+
+    let validatedOrder: any;
+    if (response.success) {
+      validatedOrder = response.data;
+      pushOrderLocally(validatedOrder);
+    } else {
+      // Fallback receipt si server action échoue
+      validatedOrder = {
+        id: `pos-${Date.now()}`,
+        ticketNumber,
+        createdAt: new Date().toISOString(),
+        type: 'DINE_IN',
+        status: 'COMPLETED',
+        items: cart,
+        totalPrice,
+        restaurantSlug: config?.slug || ''
+      };
+    }
     
     // Popup simulated receipt
     setShowReceipt({

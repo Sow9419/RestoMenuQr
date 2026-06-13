@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useResto } from './RestoContext';
+import { useMenuStore } from '@/features/menu/store/menu.store';
 import ClientMenu from './ClientMenu';
 import { 
   Wifi,
@@ -14,7 +14,7 @@ import {
 import { motion } from 'motion/react';
 
 export default function MobilePreview() {
-  const { config } = useResto();
+  const { config } = useMenuStore();
   const isLight = config?.style?.displayMode === 'light';
 
   // State for zoom factor
