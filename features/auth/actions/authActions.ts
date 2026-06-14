@@ -1,6 +1,7 @@
 'use server';
 
-import { getSupabase, getSupabaseAdmin } from '@/shared/lib/supabase';
+import { getSupabaseAdmin } from '@/shared/lib/supabase';
+import { getSupabaseServerClient } from '@/shared/lib/supabaseServer';
 import { ActionResponse } from '@/shared/types/action';
 
 /**
@@ -8,7 +9,7 @@ import { ActionResponse } from '@/shared/types/action';
  */
 export async function sendEmailOTP(email: string): Promise<ActionResponse<{ sent: boolean }>> {
   try {
-    const supabase = getSupabase();
+    const supabase = await getSupabaseServerClient();
     
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -59,7 +60,8 @@ export async function verifyEmailOTP(
   }>
 > {
   try {
-    const supabase = getSupabase();
+    // Utilisation obligatoire du client serveur pour persister les cookies de session
+    const supabase = await getSupabaseServerClient();
     
     const { data: authData, error: authError } = await supabase.auth.verifyOtp({
       email,
