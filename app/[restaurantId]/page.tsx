@@ -55,7 +55,7 @@ function CustomerMenuPageContent({ restaurantId }: { restaurantId: string }) {
   return (
     <div className="h-screen w-full bg-slate-950 flex flex-col items-center justify-between">
       <div className="w-full max-w-md h-full bg-slate-900 border-x border-slate-900 overflow-hidden shadow-2xl relative">
-        <ClientMenu isPreview={false} />
+        <ClientMenu />
       </div>
     </div>
   );

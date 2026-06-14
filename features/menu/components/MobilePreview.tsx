@@ -135,7 +135,7 @@ export default function MobilePreview() {
 
             {/* Active app viewport inside frames */}
             <div className="flex-1 bg-slate-900 relative">
-              <ClientMenu isPreview={true} />
+              <ClientMenu />
             </div>
 
             {/* Simulated iOS home slider rail footer */}

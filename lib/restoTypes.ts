@@ -3,13 +3,15 @@ export interface RestaurantSection {
   name: string;
   label: string;
   enabled: boolean;
+  section_key?: string;
 }
 
 export type DisplayMode = 'light' | 'dark' | 'system';
 
-export type MenuDensity = 'compact' | 'confortable';
+export type MenuDensity = 'compact' | 'comfortable';
 
 export interface RestaurantStyle {
+  templateLayout: 'classic' | 'card-grid' | 'premium';
   displayMode: DisplayMode;
   accentColor: string;
   fontFamily: string;

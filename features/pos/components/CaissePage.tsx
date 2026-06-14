@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useMenuStore } from '@/features/menu/store/menu.store';
 import { useOrderStore } from '@/features/order/store/order.store';
 import { createOrder } from '@/features/order/actions/orderActions';
+import { MenuItem, OrderItem, Order } from '@/lib/restoTypes';
 import {
   Plus,
   Minus,
@@ -32,21 +34,21 @@ function generateCaisseTicket(paymentMethod: string) {
 
 export default function CaissePage() {
   const { config } = useMenuStore();
-  const { pushOrderLocally } = useOrderStore();
+  const { addOrder } = useOrderStore();
 
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<OrderItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'CARD'>('CASH');
-  const [showReceipt, setShowReceipt] = useState<any>(null);
+  const [showReceipt, setShowReceipt] = useState<(Order & { paymentMethod: string; changeDue: number | null }) | null>(null);
 
   const categories = config?.categories || [];
-  const allProducts = categories.flatMap(c => c.products || []);
+  const allProducts = config?.items || [];
 
   const filteredProducts = allProducts.filter(p =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const addToCart = (item: any) => {
+  const addToCart = (item: MenuItem) => {
     setCart(prev => {
       const exists = prev.find(i => i.id === item.id);
       if (exists) {
@@ -63,7 +65,7 @@ export default function CaissePage() {
         return nextQty > 0 ? { ...i, quantity: nextQty } : null;
       }
       return i;
-    }).filter(Boolean) as any);
+    }).filter(Boolean) as OrderItem[]);
   };
 
   const removeFromCart = (id: string) => {
@@ -89,10 +91,10 @@ export default function CaissePage() {
       customerName: 'Dîneur sur Place',
     });
 
-    let validatedOrder: any;
+    let validatedOrder: Order;
     if (response.success) {
-      validatedOrder = response.data;
-      pushOrderLocally(validatedOrder);
+      validatedOrder = response.data as Order;
+      addOrder(validatedOrder);
     } else {
       // Fallback receipt si server action échoue
       validatedOrder = {
@@ -110,7 +112,6 @@ export default function CaissePage() {
     // Popup simulated receipt
     setShowReceipt({
       ...validatedOrder,
-      items: cart,
       paymentMethod,
       changeDue: paymentMethod === 'CASH' ? 0 : null
     });
@@ -140,7 +141,8 @@ export default function CaissePage() {
             >
               <button
                 onClick={() => setShowReceipt(null)}
-                className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition"
+                aria-label="Fermer le reçu"
+                className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -154,7 +156,7 @@ export default function CaissePage() {
               </div>
 
               <div className="border-t border-dashed border-slate-200 pt-4 space-y-2">
-                {showReceipt.items.map((i: any) => (
+                {showReceipt.items.map((i) => (
                   <div key={i.id} className="flex justify-between">
                     <span>{i.quantity}x {i.name}</span>
                     <span>{formatPrice(i.price * i.quantity)}</span>
@@ -175,7 +177,7 @@ export default function CaissePage() {
 
               <button
                 onClick={() => window.print()}
-                className="w-full mt-8 h-12 bg-slate-900 text-white rounded-xl font-sans font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 transition"
+                className="w-full mt-8 h-12 bg-slate-900 text-white rounded-xl font-sans font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 transition cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
                 Imprimer le Reçu
@@ -196,6 +198,7 @@ export default function CaissePage() {
               placeholder="Rechercher un plat..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Rechercher un plat"
               className="w-full h-11 pl-11 pr-4 bg-stone-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all border-transparent focus:bg-white focus:border-primary/20"
             />
           </div>
@@ -217,17 +220,24 @@ export default function CaissePage() {
                 key={product.id}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => addToCart(product)}
-                className="group bg-white p-3 rounded-2xl border border-stone-200 hover:border-primary/30 transition-all shadow-sm hover:shadow-md text-left flex flex-col h-full"
+                aria-label={`Ajouter ${product.name} au panier`}
+                className="group bg-white p-3 rounded-2xl border border-stone-200 hover:border-primary/30 transition-all shadow-sm hover:shadow-md text-left flex flex-col h-full cursor-pointer"
               >
                 <div className="aspect-square rounded-xl bg-stone-100 mb-3 overflow-hidden relative">
-                  {product.image_url ? (
-                    <img src={product.image_url} alt={product.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                  {product.imageUrl ? (
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform group-hover:scale-105"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-stone-300">
                       <Sparkles className="w-8 h-8 opacity-20" />
                     </div>
                   )}
-                  <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm">
+                  <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm z-10">
                     {formatPrice(product.price)}
                   </div>
                 </div>
@@ -273,7 +283,8 @@ export default function CaissePage() {
                     <span className="font-semibold text-sm pr-4">{item.name}</span>
                     <button
                       onClick={() => removeFromCart(item.id)}
-                      className="text-stone-300 hover:text-error transition"
+                      aria-label={`Retirer ${item.name} du panier`}
+                      className="text-stone-300 hover:text-error transition cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -282,14 +293,16 @@ export default function CaissePage() {
                     <div className="flex items-center bg-white rounded-xl border border-stone-200 p-1">
                       <button
                         onClick={() => updateQty(item.id, -1)}
-                        className="w-8 h-8 flex items-center justify-center hover:bg-stone-50 rounded-lg transition"
+                        aria-label="Diminuer la quantité"
+                        className="w-8 h-8 flex items-center justify-center hover:bg-stone-50 rounded-lg transition cursor-pointer"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
                       <span className="w-8 text-center text-xs font-bold">{item.quantity}</span>
                       <button
                         onClick={() => updateQty(item.id, 1)}
-                        className="w-8 h-8 flex items-center justify-center hover:bg-stone-50 rounded-lg transition"
+                        aria-label="Augmenter la quantité"
+                        className="w-8 h-8 flex items-center justify-center hover:bg-stone-50 rounded-lg transition cursor-pointer"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
@@ -318,7 +331,8 @@ export default function CaissePage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => setPaymentMethod('CASH')}
-              className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all ${
+              aria-label="Payer en espèces"
+              className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
                 paymentMethod === 'CASH'
                 ? 'bg-white border-2 border-primary shadow-md ring-4 ring-primary/5'
                 : 'bg-white border border-stone-200 text-stone-400'
@@ -329,7 +343,8 @@ export default function CaissePage() {
             </button>
             <button
               onClick={() => setPaymentMethod('CARD')}
-              className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all ${
+              aria-label="Payer par carte ou Wave"
+              className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
                 paymentMethod === 'CARD'
                 ? 'bg-white border-2 border-primary shadow-md ring-4 ring-primary/5'
                 : 'bg-white border border-stone-200 text-stone-400'
@@ -344,7 +359,7 @@ export default function CaissePage() {
             whileTap={{ scale: 0.98 }}
             disabled={cart.length === 0}
             onClick={handleCheckout}
-            className="w-full h-16 bg-primary text-white rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg shadow-primary/20 hover:bg-primary-hover disabled:opacity-50 disabled:grayscale transition-all"
+            className="w-full h-16 bg-primary text-white rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg shadow-primary/20 hover:bg-primary-hover disabled:opacity-50 disabled:grayscale transition-all cursor-pointer"
           >
             <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
               <CircleCheck className="w-5 h-5" />

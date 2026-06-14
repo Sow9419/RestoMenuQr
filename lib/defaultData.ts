@@ -125,13 +125,14 @@ export const DEFAULT_CONFIG: RestaurantConfig = {
   isOpen: true,
   sections: INITIAL_SECTIONS,
   style: {
+    templateLayout: 'classic',
     displayMode: 'light',
     accentColor: '#C2410C', // Orange brique chaleureux
     fontFamily: 'font-serif', // Playfair Serif
     heroBannerUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200',
     heroTitle: 'Cuisine d\'Exception & Ambiance Feutrée',
     heroDescription: 'Digitalisez vos repas et passez vos commandes directement sur place en moins de deux minutes. Un concept novateur par nos chefs étoilés.',
-    density: 'confortable',
+    density: 'comfortable',
     backgroundImageUrl: 'modern-dark', // Noir Cosmique
     overlayOpacity: 25,
     glassmorphism: true,
