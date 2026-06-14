@@ -146,7 +146,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg border cursor-pointer transition-all ${
+                className={`px-3 h-11 text-xs font-bold rounded-lg border cursor-pointer transition-all ${
                   isOpen 
                     ? 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-xs' 
                     : 'bg-red-50 text-red-650 border-red-200 shadow-xs'

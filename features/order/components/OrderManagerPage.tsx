@@ -157,7 +157,7 @@ export default function OrderManagerPage() {
 
         <button
           onClick={handleCreateSimulatedOrder}
-          className="flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md active:scale-[0.98] transition-all cursor-pointer"
+          className="flex items-center gap-2 px-5 h-11 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md active:scale-[0.98] transition-all cursor-pointer"
         >
           <Sparkles size={14} />
           Simuler commande client
@@ -180,7 +180,7 @@ export default function OrderManagerPage() {
               <button
                 key={tab.id}
                 onClick={() => setFilterStatus(tab.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all whitespace-nowrap ${
+                className={`px-3 h-9 rounded-lg text-xs font-bold cursor-pointer transition-all whitespace-nowrap ${
                   isActive 
                     ? 'bg-white text-emerald-600 border border-[#E7E5E4] shadow-xs' 
                     : 'text-stone-500 hover:text-[#1C1917]'

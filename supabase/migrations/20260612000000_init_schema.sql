@@ -235,8 +235,16 @@ CREATE POLICY delete_organizations ON public.organizations
 
 -- 5.2 Restaurants Policies
 -- Anyone (public) can read restaurant metadata if they have the slug/identifier
-CREATE POLICY select_restaurants_public ON public.restaurants
-    FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY select_restaurants_anon ON public.restaurants
+    FOR SELECT TO anon USING (true);
+-- Authenticated: restricted to own restaurant(s) via profiles (tenant isolation)
+CREATE POLICY select_restaurants_auth ON public.restaurants
+    FOR SELECT TO authenticated USING (
+        id IN (
+            SELECT restaurant_id FROM public.profiles
+            WHERE profiles.user_id = auth.uid()
+        )
+    );
 
 -- Only Organization Owner or Restaurant Creator can insert/update/delete restaurants
 CREATE POLICY manage_restaurants_admin ON public.restaurants
@@ -251,18 +259,51 @@ CREATE POLICY update_profiles_own ON public.profiles
     FOR UPDATE TO authenticated USING (auth.uid() = user_id);
 
 -- 5.4 Categories, Products, Page Settings, Page Sections Policies
--- Public menus can read categories, products, settings, section order
-CREATE POLICY select_categories_public ON public.categories
-    FOR SELECT TO anon, authenticated USING (true);
+-- Public menus can read categories, products, settings, section order (slug-based access)
+-- Anon: full read access (public menu data — filtered by app via slug)
+CREATE POLICY select_categories_anon ON public.categories
+    FOR SELECT TO anon USING (true);
+-- Authenticated: restricted to own restaurant_id only (tenant isolation via profiles)
+CREATE POLICY select_categories_auth ON public.categories
+    FOR SELECT TO authenticated USING (
+        restaurant_id IN (
+            SELECT restaurant_id FROM public.profiles
+            WHERE profiles.user_id = auth.uid()
+        )
+    );
 
-CREATE POLICY select_products_public ON public.products
-    FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY select_products_anon ON public.products
+    FOR SELECT TO anon USING (true);
+CREATE POLICY select_products_auth ON public.products
+    FOR SELECT TO authenticated USING (
+        category_id IN (
+            SELECT c.id FROM public.categories c
+            WHERE c.restaurant_id IN (
+                SELECT restaurant_id FROM public.profiles
+                WHERE profiles.user_id = auth.uid()
+            )
+        )
+    );
 
-CREATE POLICY select_settings_public ON public.page_settings
-    FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY select_settings_anon ON public.page_settings
+    FOR SELECT TO anon USING (true);
+CREATE POLICY select_settings_auth ON public.page_settings
+    FOR SELECT TO authenticated USING (
+        restaurant_id IN (
+            SELECT restaurant_id FROM public.profiles
+            WHERE profiles.user_id = auth.uid()
+        )
+    );
 
-CREATE POLICY select_sections_public ON public.page_sections
-    FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY select_sections_anon ON public.page_sections
+    FOR SELECT TO anon USING (true);
+CREATE POLICY select_sections_auth ON public.page_sections
+    FOR SELECT TO authenticated USING (
+        restaurant_id IN (
+            SELECT restaurant_id FROM public.profiles
+            WHERE profiles.user_id = auth.uid()
+        )
+    );
 
 -- Staff with write roles (OWNER, CASHIER, etc.) can modify under their restaurant_id (checked via profiles)
 -- Wait, using simpler, non-recursive subqueries to check user's roles

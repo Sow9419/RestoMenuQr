@@ -145,7 +145,7 @@ export default function MenuRenderer({ config, onItemClick }: MenuRendererProps)
                                 </button>
                                 <motion.button
                                   whileTap={{ scale: 0.9 }}
-                                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform hover:rotate-90"
+                                  className="w-11 h-11 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform hover:rotate-90"
                                   style={{ backgroundColor: style.accentColor }}
                                 >
                                   <Plus className="w-5 h-5" />

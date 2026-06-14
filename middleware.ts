@@ -63,12 +63,16 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protéger les routes admin si l'utilisateur n'est pas connecté
+  // Pattern: /{restaurantId}/{adminModule} où adminModule ∈ {builder, orders, pos, dashboard, settings}
   const segments = pathname.split('/').filter(Boolean);
-  const isAdminPath = segments.length >= 2 && ['builder', 'orders', 'pos', 'dashboard', 'settings'].includes(segments[1]);
+  const isAdminPath = segments.length === 2 && ['builder', 'orders', 'pos', 'dashboard', 'settings'].includes(segments[1]);
 
   if (isAdminPath && !user) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
+
+  // Si authentifié mais tente d'accéder à une route admin sans profil pour ce restaurant,
+  // la vérification est déléguée au layout (admin) — requête DB trop coûteuse en middleware Edge.
 
   return response
 }

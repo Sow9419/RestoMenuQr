@@ -258,7 +258,7 @@ export default function BuilderPanel() {
               <button
                 onClick={onSaveStyle}
                 disabled={isSaving}
-                className="h-10 px-6 bg-stone-900 text-white rounded-xl text-xs font-bold hover:bg-stone-800 transition disabled:opacity-50 cursor-pointer"
+                className="h-11 px-6 bg-stone-900 text-white rounded-xl text-xs font-bold hover:bg-stone-800 transition disabled:opacity-50 cursor-pointer"
               >
                 {isSaving ? 'Enregistrement...' : 'Publier'}
               </button>
@@ -310,13 +310,13 @@ export default function BuilderPanel() {
                 <div className="flex bg-[#F5F5F4] p-1 rounded-xl">
                   <button
                     onClick={() => handleStyleChange('displayMode', 'light')}
-                    className={`flex-1 h-9 rounded-lg text-xs font-bold transition cursor-pointer ${config.style.displayMode === 'light' ? 'bg-white shadow-sm' : 'text-stone-400'}`}
+                    className={`flex-1 h-11 rounded-lg text-xs font-bold transition cursor-pointer ${config.style.displayMode === 'light' ? 'bg-white shadow-sm' : 'text-stone-400'}`}
                   >
                     Clair
                   </button>
                   <button
                     onClick={() => handleStyleChange('displayMode', 'dark')}
-                    className={`flex-1 h-9 rounded-lg text-xs font-bold transition cursor-pointer ${config.style.displayMode === 'dark' ? 'bg-zinc-900 text-white shadow-sm' : 'text-stone-400'}`}
+                    className={`flex-1 h-11 rounded-lg text-xs font-bold transition cursor-pointer ${config.style.displayMode === 'dark' ? 'bg-zinc-900 text-white shadow-sm' : 'text-stone-400'}`}
                   >
                     Sombre
                   </button>
@@ -347,7 +347,7 @@ export default function BuilderPanel() {
                   className="object-cover transition-transform group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="h-10 px-5 bg-white text-black rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer">
+                  <button className="h-11 px-5 bg-white text-black rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer">
                     <ImageIcon className="w-4 h-4" /> Changer l&apos;image
                   </button>
                 </div>
@@ -383,7 +383,7 @@ export default function BuilderPanel() {
                   <button
                     key={cat.id}
                     onClick={() => openCatModal('edit', cat)}
-                    className="whitespace-nowrap px-4 h-10 bg-white border border-[#E7E5E4] rounded-xl text-xs font-bold flex items-center gap-2 hover:border-primary/30 transition-all cursor-pointer"
+                    className="whitespace-nowrap px-4 h-11 bg-white border border-[#E7E5E4] rounded-xl text-xs font-bold flex items-center gap-2 hover:border-primary/30 transition-all cursor-pointer"
                   >
                     <span className="text-stone-300">#</span> {cat.name}
                   </button>
@@ -397,7 +397,7 @@ export default function BuilderPanel() {
                 <h3 className="text-[10px] font-black uppercase tracking-widest text-stone-400">Plats & Boissons</h3>
                 <button
                   onClick={() => openDishModal('add')}
-                  className="h-10 px-5 bg-stone-900 text-white rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-stone-800 transition shadow-md cursor-pointer"
+                  className="h-11 px-5 bg-stone-900 text-white rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-stone-800 transition shadow-md cursor-pointer"
                 >
                   <Plus className="w-4 h-4" /> Ajouter un plat
                 </button>
@@ -634,7 +634,7 @@ export default function BuilderPanel() {
                       <button
                         key={cat.id}
                         onClick={() => setDishCategoryId(cat.id)}
-                        className={`whitespace-nowrap px-4 h-10 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                        className={`whitespace-nowrap px-4 h-11 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                           dishCategoryId === cat.id ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-400 border-[#E7E5E4]'
                         }`}
                       >

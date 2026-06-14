@@ -332,7 +332,7 @@ export default function CaissePage() {
             <button
               onClick={() => setPaymentMethod('CASH')}
               aria-label="Payer en espèces"
-              className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+              className={`min-h-[44px] h-14 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
                 paymentMethod === 'CASH'
                 ? 'bg-white border-2 border-primary shadow-md ring-4 ring-primary/5'
                 : 'bg-white border border-stone-200 text-stone-400'
@@ -344,7 +344,7 @@ export default function CaissePage() {
             <button
               onClick={() => setPaymentMethod('CARD')}
               aria-label="Payer par carte ou Wave"
-              className={`h-14 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+              className={`min-h-[44px] h-14 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
                 paymentMethod === 'CARD'
                 ? 'bg-white border-2 border-primary shadow-md ring-4 ring-primary/5'
                 : 'bg-white border border-stone-200 text-stone-400'
