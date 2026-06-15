@@ -3,7 +3,7 @@
 import { getSupabaseServerClient } from '@/shared/lib/supabaseServer';
 import { getSupabaseAdmin } from '@/shared/lib/supabase';
 import { ActionResponse } from '@/shared/types/action';
-import { Order, OrderStatus, OrderType } from '@/lib/restoTypes';
+import { Order, OrderStatus, OrderType } from '@/features/order/types';
 import { createOrderSchema } from '../validators';
 
 /**

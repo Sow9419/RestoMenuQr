@@ -1,6 +1,6 @@
 'use server';
 
-import { getSupabase, getSupabaseAdmin } from '@/shared/lib/supabase';
+import { getSupabaseServerClient } from '@/shared/lib/supabaseServer';
 import { ActionResponse } from '@/shared/types/action';
 
 /**
@@ -8,7 +8,7 @@ import { ActionResponse } from '@/shared/types/action';
  */
 export async function sendEmailOTP(email: string): Promise<ActionResponse<{ sent: boolean }>> {
   try {
-    const supabase = getSupabase();
+    const supabase = await getSupabaseServerClient();
     
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -21,7 +21,7 @@ export async function sendEmailOTP(email: string): Promise<ActionResponse<{ sent
       return {
         success: false,
         error: {
-          code: 'ERR_OTP_SEND_FAILED',
+          code: 'ERR_OTP_INVALID',
           message: error.message,
         },
       };
@@ -35,7 +35,7 @@ export async function sendEmailOTP(email: string): Promise<ActionResponse<{ sent
     return {
       success: false,
       error: {
-        code: 'ERR_SYSTEM_ERROR',
+        code: 'ERR_INTERNAL_SERVER',
         message: err.message || 'Une erreur système inattendue est survenue.',
       },
     };
@@ -59,7 +59,8 @@ export async function verifyEmailOTP(
   }>
 > {
   try {
-    const supabase = getSupabase();
+    // Utilisation obligatoire du client serveur pour persister les cookies de session
+    const supabase = await getSupabaseServerClient();
     
     const { data: authData, error: authError } = await supabase.auth.verifyOtp({
       email,
@@ -79,9 +80,9 @@ export async function verifyEmailOTP(
 
     const userId = authData.user.id;
 
-    // Use admin client to check for base profiles to guarantee bypass of any premature RLS restrictions
-    const supabaseAdmin = getSupabaseAdmin();
-    const { data: profile, error: profileError } = await supabaseAdmin
+    // Use server client to check profiles (filtered by RLS)
+    const supabaseServer = await getSupabaseServerClient();
+    const { data: profile, error: profileError } = await supabaseServer
       .from('profiles')
       .select('restaurant_id, organization_id, role')
       .eq('user_id', userId)
@@ -91,7 +92,7 @@ export async function verifyEmailOTP(
       return {
         success: false,
         error: {
-          code: 'ERR_DB_ERROR',
+          code: 'ERR_INTERNAL_SERVER',
           message: 'Impossible de récupérer le profil utilisateur.',
         },
       };
@@ -111,7 +112,7 @@ export async function verifyEmailOTP(
     return {
       success: false,
       error: {
-        code: 'ERR_SYSTEM_ERROR',
+        code: 'ERR_INTERNAL_SERVER',
         message: err.message || 'Une erreur système inattendue est survenue.',
       },
     };

@@ -57,18 +57,12 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Rediriger la racine `/` vers /login si non authentifié
-  // Ceci remplace l'ancien prototype dashboard (app/page.tsx)
   if (pathname === '/' && !user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Protéger les routes admin si l'utilisateur n'est pas connecté
-  const segments = pathname.split('/').filter(Boolean);
-  const isAdminPath = segments.length >= 2 && ['builder', 'orders', 'pos', 'dashboard', 'settings'].includes(segments[1]);
-
-  if (isAdminPath && !user) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+  // La protection des routes admin est déléguée au layout (admin) qui vérifie
+  // la session + le profil restaurant. Requête DB trop coûteuse en middleware Edge.
 
   return response
 }

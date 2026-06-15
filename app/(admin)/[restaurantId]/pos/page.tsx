@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import CaissePage from '@/components/CaissePage';
+import CaissePage from '@/features/pos/components/CaissePage';
 
 export default function PosPage() {
   return <CaissePage />;

@@ -2,16 +2,17 @@
 
 import { getSupabaseServerClient } from '@/shared/lib/supabaseServer';
 import { ActionResponse } from '@/shared/types/action';
-import { RestaurantConfig, RestaurantSection, RestaurantStyle, MenuCategory, MenuItem } from '@/lib/restoTypes';
+import { RestaurantConfig, RestaurantSection, RestaurantStyle, MenuCategory, MenuItem } from '@/features/menu/types';
 
 const DEFAULT_STYLE: RestaurantStyle = {
+  templateLayout: 'classic',
   displayMode: 'light',
   accentColor: '#C2410C',
   fontFamily: 'Playfair Display',
   heroBannerUrl: '',
   heroTitle: '',
   heroDescription: '',
-  density: 'confortable',
+  density: 'comfortable',
   backgroundImageUrl: 'slate',
   overlayOpacity: 40,
   glassmorphism: false,
@@ -85,13 +86,14 @@ export async function getRestaurantConfigBySlug(
     // Map style
     const style: RestaurantStyle = pageSettings
       ? {
+          templateLayout: (pageSettings.template_layout as any) || DEFAULT_STYLE.templateLayout,
           displayMode: (pageSettings.display_mode as 'light' | 'dark' | 'system') || DEFAULT_STYLE.displayMode,
           accentColor: pageSettings.accent_color || DEFAULT_STYLE.accentColor,
           fontFamily: pageSettings.font_family || DEFAULT_STYLE.fontFamily,
           heroBannerUrl: pageSettings.hero_banner_url || DEFAULT_STYLE.heroBannerUrl,
           heroTitle: pageSettings.hero_title || DEFAULT_STYLE.heroTitle,
           heroDescription: pageSettings.hero_description || DEFAULT_STYLE.heroDescription,
-          density: (pageSettings.density as 'compact' | 'confortable') || DEFAULT_STYLE.density,
+          density: (pageSettings.density as 'compact' | 'comfortable') || DEFAULT_STYLE.density,
           backgroundImageUrl: pageSettings.background_image_url || DEFAULT_STYLE.backgroundImageUrl,
           overlayOpacity: pageSettings.overlay_opacity ?? DEFAULT_STYLE.overlayOpacity,
           glassmorphism: pageSettings.glassmorphism ?? DEFAULT_STYLE.glassmorphism,

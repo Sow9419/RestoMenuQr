@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { RestaurantConfig, MenuCategory, MenuItem, RestaurantSection, RestaurantStyle } from '@/lib/restoTypes';
+import { RestaurantConfig, MenuCategory, MenuItem, RestaurantSection, RestaurantStyle } from '@/features/menu/types';
 
 interface MenuState {
   config: RestaurantConfig | null;

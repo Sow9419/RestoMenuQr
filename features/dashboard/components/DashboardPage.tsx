@@ -42,14 +42,27 @@ export default function DashboardPage() {
     return `${parts.join(".")} ${config?.style?.currency || 'FCFA'}`;
   };
 
-  // Mock analytical coordinates for nice looking SVG curves
-  // If we have actual prices, we display beautiful bars or lines
+  // Weekly revenue bars — computed from live orders grouped by day
   const daysOfWeek = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-  const dataPoints = [35000, 48000, 72000, 51000, 94000, 142000, 115000];
-  // Adjust last day dynamically based on current live revenue
-  dataPoints[6] = Math.max(dataPoints[6], Math.min(revenue, 250000));
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay() + 1);
+  startOfWeek.setHours(0, 0, 0, 0);
 
-  const maxPoint = Math.max(...dataPoints);
+  const dayRevenue = daysOfWeek.map((_, i) => {
+    const dayStart = new Date(startOfWeek);
+    dayStart.setDate(startOfWeek.getDate() + i);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayStart.getDate() + 1);
+    return completedOrders
+      .filter(o => {
+        const d = new Date(o.createdAt);
+        return d >= dayStart && d < dayEnd;
+      })
+      .reduce((sum, o) => sum + o.totalPrice, 0);
+  });
+
+  const maxPoint = Math.max(...dayRevenue, 1);
 
   const isLight = config?.style?.displayMode === 'light';
 
@@ -99,7 +112,7 @@ export default function DashboardPage() {
               <Coins size={20} />
             </div>
             <span className="text-xs font-medium text-emerald-600 flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-              <TrendingUp size={12} /> +12%
+              <TrendingUp size={12} /> Actif
             </span>
           </div>
           <div className="mt-4">
@@ -122,8 +135,8 @@ export default function DashboardPage() {
             <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500">
               <ShoppingBag size={20} />
             </div>
-            <span className="text-xs font-medium text-emerald-650 flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-              <TrendingUp size={12} /> +18.4%
+            <span className="text-xs font-medium text-emerald-600 flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              <TrendingUp size={12} /> Actif
             </span>
           </div>
           <div className="mt-4">
@@ -217,7 +230,7 @@ export default function DashboardPage() {
               isLight ? 'border-[#E7E5E4]/50' : 'border-zinc-805/10'
             }`}></div>
 
-            {dataPoints.map((point, index) => {
+            {dayRevenue.map((point, index) => {
               const heightPercent = maxPoint > 0 ? (point / maxPoint) * 80 : 0; // capped at 80%
               return (
                 <div key={index} className="flex-1 flex flex-col items-center group relative z-10 mx-1">

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSupabaseServerClient } from '@/shared/lib/supabaseServer';
 import MenuInitializer from '@/features/menu/components/MenuInitializer';
-import CollapsibleSidebar from '@/components/CollapsibleSidebar';
+import CollapsibleSidebar from '@/shared/ui/CollapsibleSidebar';
 
 interface AdminLayoutProps {
   children: React.ReactNode;

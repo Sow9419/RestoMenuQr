@@ -13,7 +13,7 @@ CREATE TYPE public.order_status_type AS ENUM ('PENDING', 'CONFIRMED', 'PREPARING
 -- 2.0 organizations
 CREATE TABLE public.organizations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    owner_id UUID NOT NULL,
+    owner_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     stripe_customer_id TEXT,
     stripe_subscription_id TEXT,
@@ -42,7 +42,7 @@ CREATE TABLE public.restaurants (
 -- 2.2 profiles
 CREATE TABLE public.profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     restaurant_id UUID REFERENCES public.restaurants(id) ON DELETE SET NULL,
     organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
     role public.user_role DEFAULT 'OWNER'::public.user_role NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE public.products (
     category_id UUID NOT NULL REFERENCES public.categories(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     description TEXT,
-    price NUMERIC NOT NULL CHECK (price >= 0),
+    price NUMERIC NOT NULL CHECK (price > 0),
     is_available BOOLEAN DEFAULT true NOT NULL,
     image_url TEXT,
     sort_order INT DEFAULT 0 NOT NULL,
@@ -83,6 +83,8 @@ CREATE TABLE public.page_settings (
     hero_title TEXT,
     hero_description TEXT,
     hero_banner_url TEXT,
+    background_image_url TEXT,
+    show_category_icons BOOLEAN DEFAULT true NOT NULL,
     display_mode TEXT DEFAULT 'light' NOT NULL, -- light, dark
     overlay_opacity INT DEFAULT 40 NOT NULL CHECK (overlay_opacity BETWEEN 0 AND 100),
     glassmorphism BOOLEAN DEFAULT false NOT NULL,
@@ -107,7 +109,7 @@ CREATE TABLE public.invitations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     restaurant_id UUID NOT NULL REFERENCES public.restaurants(id) ON DELETE CASCADE,
     organization_id UUID NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,
-    invited_by UUID NOT NULL,
+    invited_by UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT NOT NULL,
     role public.user_role NOT NULL,
     token TEXT UNIQUE NOT NULL,
@@ -235,8 +237,16 @@ CREATE POLICY delete_organizations ON public.organizations
 
 -- 5.2 Restaurants Policies
 -- Anyone (public) can read restaurant metadata if they have the slug/identifier
-CREATE POLICY select_restaurants_public ON public.restaurants
-    FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY select_restaurants_anon ON public.restaurants
+    FOR SELECT TO anon USING (true);
+-- Authenticated: restricted to own restaurant(s) via profiles (tenant isolation)
+CREATE POLICY select_restaurants_auth ON public.restaurants
+    FOR SELECT TO authenticated USING (
+        id IN (
+            SELECT restaurant_id FROM public.profiles
+            WHERE profiles.user_id = auth.uid()
+        )
+    );
 
 -- Only Organization Owner or Restaurant Creator can insert/update/delete restaurants
 CREATE POLICY manage_restaurants_admin ON public.restaurants
@@ -250,19 +260,55 @@ CREATE POLICY select_profiles_own ON public.profiles
 CREATE POLICY update_profiles_own ON public.profiles
     FOR UPDATE TO authenticated USING (auth.uid() = user_id);
 
+CREATE POLICY insert_profiles_own ON public.profiles
+    FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+
 -- 5.4 Categories, Products, Page Settings, Page Sections Policies
--- Public menus can read categories, products, settings, section order
-CREATE POLICY select_categories_public ON public.categories
-    FOR SELECT TO anon, authenticated USING (true);
+-- Public menus can read categories, products, settings, section order (slug-based access)
+-- Anon: full read access (public menu data — filtered by app via slug)
+CREATE POLICY select_categories_anon ON public.categories
+    FOR SELECT TO anon USING (true);
+-- Authenticated: restricted to own restaurant_id only (tenant isolation via profiles)
+CREATE POLICY select_categories_auth ON public.categories
+    FOR SELECT TO authenticated USING (
+        restaurant_id IN (
+            SELECT restaurant_id FROM public.profiles
+            WHERE profiles.user_id = auth.uid()
+        )
+    );
 
-CREATE POLICY select_products_public ON public.products
-    FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY select_products_anon ON public.products
+    FOR SELECT TO anon USING (true);
+CREATE POLICY select_products_auth ON public.products
+    FOR SELECT TO authenticated USING (
+        category_id IN (
+            SELECT c.id FROM public.categories c
+            WHERE c.restaurant_id IN (
+                SELECT restaurant_id FROM public.profiles
+                WHERE profiles.user_id = auth.uid()
+            )
+        )
+    );
 
-CREATE POLICY select_settings_public ON public.page_settings
-    FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY select_settings_anon ON public.page_settings
+    FOR SELECT TO anon USING (true);
+CREATE POLICY select_settings_auth ON public.page_settings
+    FOR SELECT TO authenticated USING (
+        restaurant_id IN (
+            SELECT restaurant_id FROM public.profiles
+            WHERE profiles.user_id = auth.uid()
+        )
+    );
 
-CREATE POLICY select_sections_public ON public.page_sections
-    FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY select_sections_anon ON public.page_sections
+    FOR SELECT TO anon USING (true);
+CREATE POLICY select_sections_auth ON public.page_sections
+    FOR SELECT TO authenticated USING (
+        restaurant_id IN (
+            SELECT restaurant_id FROM public.profiles
+            WHERE profiles.user_id = auth.uid()
+        )
+    );
 
 -- Staff with write roles (OWNER, CASHIER, etc.) can modify under their restaurant_id (checked via profiles)
 -- Wait, using simpler, non-recursive subqueries to check user's roles
@@ -330,9 +376,8 @@ CREATE POLICY insert_orders_public ON public.orders
 CREATE POLICY insert_order_items_public ON public.order_items
     FOR INSERT TO anon, authenticated WITH CHECK (true);
 
--- Public users cannot directly select orders without session, mass select is blocked.
--- Solo les membres authentifiés du staff du restaurant peuvent lire.
-CREATE POLICY select_orders_public ON public.orders
+-- Only authenticated staff can read orders for their restaurant
+CREATE POLICY select_orders_staff ON public.orders
     FOR SELECT TO authenticated 
     USING (
         EXISTS (
@@ -373,3 +418,22 @@ CREATE POLICY manage_order_items_staff ON public.order_items
               AND profiles.restaurant_id = (SELECT restaurant_id FROM public.orders WHERE orders.id = order_items.order_id)
         )
     );
+
+
+-- SECTION 6: Triggers
+
+-- Auto-expire invitations when expires_at < now()
+CREATE OR REPLACE FUNCTION public.trigger_expire_invitations()
+RETURNS trigger AS $$
+BEGIN
+  UPDATE public.invitations
+  SET status = 'EXPIRED'
+  WHERE status = 'PENDING' AND expires_at < now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER trg_expire_invitations
+  AFTER INSERT OR UPDATE ON public.invitations
+  FOR EACH STATEMENT
+  EXECUTE FUNCTION public.trigger_expire_invitations();

@@ -2,7 +2,7 @@
 
 import { getSupabaseServerClient } from '@/shared/lib/supabaseServer';
 import { ActionResponse } from '@/shared/types/action';
-import { MenuItem } from '@/lib/restoTypes';
+import { MenuItem } from '@/features/menu/types';
 import { createProductSchema, updateProductSchema } from '../validators';
 
 /**
