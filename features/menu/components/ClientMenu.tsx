@@ -7,7 +7,8 @@ import { useMenuStore } from '@/features/menu/store/menu.store';
 import { useOrderStore } from '@/features/order/store/order.store';
 import { createOrder } from '@/features/order/actions/orderActions';
 import MenuRenderer from '@/templates/engine/MenuRenderer';
-import { MenuItem, OrderItem, Order } from '@/lib/restoTypes';
+import { MenuItem } from '@/features/menu/types';
+import { OrderItem, Order } from '@/features/order/types';
 import {
   ShoppingBag,
   X,

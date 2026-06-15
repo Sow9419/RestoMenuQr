@@ -6,7 +6,7 @@ import { useMenuStore } from '@/features/menu/store/menu.store';
 import { updatePageSettings } from '@/features/menu/actions/settingsActions';
 import { createCategory, updateCategory, deleteCategory } from '@/features/menu/actions/categoryActions';
 import { createProduct, updateProduct, deleteProduct } from '@/features/menu/actions/productActions';
-import { MenuCategory, MenuItem } from '@/lib/restoTypes';
+import { MenuCategory, MenuItem } from '@/features/menu/types';
 import {
   Layers,
   Paintbrush,
@@ -29,7 +29,7 @@ import {
   Share2,
   ExternalLink
 } from 'lucide-react';
-import { BACKGROUND_PRESETS, FONTS_LIST } from '@/lib/defaultData';
+import { BACKGROUND_PRESETS, FONTS_LIST } from '@/features/menu/constants';
 import { motion, AnimatePresence } from 'motion/react';
 
 type SubTabId = 'SECTIONS' | 'STYLE' | 'CONTENT' | 'PARTAGE';

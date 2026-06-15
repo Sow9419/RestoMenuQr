@@ -3,7 +3,7 @@
 import { getSupabaseServerClient } from '@/shared/lib/supabaseServer';
 import { getSupabaseAdmin } from '@/shared/lib/supabase';
 import { ActionResponse } from '@/shared/types/action';
-import { MenuCategory } from '@/lib/restoTypes';
+import { MenuCategory } from '@/features/menu/types';
 import { createCategorySchema, updateCategorySchema } from '../validators';
 
 /**

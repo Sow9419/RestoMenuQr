@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Order, OrderStatus } from '@/lib/restoTypes';
+import { Order, OrderStatus } from '@/features/order/types';
 
 interface OrderState {
   orders: Order[];

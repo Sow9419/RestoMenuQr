@@ -98,7 +98,7 @@ export async function createRestaurantWithOrg(
       return {
         success: false,
         error: {
-          code: 'ERR_ORG_CREATION_FAILED',
+          code: 'ERR_INTERNAL_SERVER',
           message: orgError?.message || 'Échec de la création de l\'organisation.',
         },
       };
@@ -127,7 +127,7 @@ export async function createRestaurantWithOrg(
       return {
         success: false,
         error: {
-          code: 'ERR_RESTO_CREATION_FAILED',
+          code: 'ERR_INTERNAL_SERVER',
           message: restoError?.message || 'Échec de la création du restaurant.',
         },
       };
@@ -151,7 +151,7 @@ export async function createRestaurantWithOrg(
       return {
         success: false,
         error: {
-          code: 'ERR_PROFILE_CREATION_FAILED',
+          code: 'ERR_INTERNAL_SERVER',
           message: profileError.message || 'Échec de la création du profil utilisateur.',
         },
       };
@@ -180,7 +180,7 @@ export async function createRestaurantWithOrg(
       return {
         success: false,
         error: {
-          code: 'ERR_SETTINGS_CREATION_FAILED',
+          code: 'ERR_INTERNAL_SERVER',
           message: settingsError.message || 'Échec de la configuration esthétique par défaut.',
         },
       };
@@ -205,7 +205,7 @@ export async function createRestaurantWithOrg(
       return {
         success: false,
         error: {
-          code: 'ERR_SECTIONS_CREATION_FAILED',
+          code: 'ERR_INTERNAL_SERVER',
           message: sectionsError.message || 'Échec de la configuration des sections par défaut.',
         },
       };

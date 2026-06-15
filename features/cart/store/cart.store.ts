@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { MenuItem } from '@/lib/restoTypes';
+import { MenuItem } from '@/features/menu/types';
 
 export interface CartItem {
   id: string;

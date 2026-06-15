@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { RestaurantConfig, MenuItem } from '@/lib/restoTypes';
+import { RestaurantConfig, MenuItem } from '@/features/menu/types';
 import { motion } from 'motion/react';
 import { Plus, Info, ChevronRight, Star } from 'lucide-react';
 

@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { useMenuStore } from '@/features/menu/store/menu.store';
 import { useOrderStore } from '@/features/order/store/order.store';
 import { createOrder } from '@/features/order/actions/orderActions';
-import { MenuItem, OrderItem, Order } from '@/lib/restoTypes';
+import { MenuItem } from '@/features/menu/types';
+import { OrderItem, Order } from '@/features/order/types';
 import {
   Plus,
   Minus,
@@ -96,17 +97,7 @@ export default function CaissePage() {
       validatedOrder = response.data as Order;
       addOrder(validatedOrder);
     } else {
-      // Fallback receipt si server action échoue
-      validatedOrder = {
-        id: fallbackId,
-        ticketNumber,
-        createdAt: nowIso,
-        type: 'DINE_IN',
-        status: 'COMPLETED',
-        items: cart,
-        totalPrice,
-        restaurantSlug: config?.slug || ''
-      };
+      return;
     }
 
     // Popup simulated receipt

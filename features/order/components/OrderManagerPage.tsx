@@ -3,36 +3,18 @@
 import React, { useState } from 'react';
 import { useMenuStore } from '@/features/menu/store/menu.store';
 import { useOrderStore } from '@/features/order/store/order.store';
-import { createOrder, updateOrderStatus } from '@/features/order/actions/orderActions';
+import { updateOrderStatus } from '@/features/order/actions/orderActions';
 import { 
   ClipboardList, 
   MapPin, 
   PhoneCall, 
-  Check, 
   Clock, 
-  X, 
-  Share2, 
-  Sparkles, 
   Trash2,
-  AlertCircle,
   Smartphone,
-  CheckCircle,
-  HelpCircle,
-  ChevronDown,
-  ChevronUp
 } from 'lucide-react';
-import { Order, OrderStatus, OrderType } from '@/lib/restoTypes';
+import { OrderStatus } from '@/features/order/types';
 import { motion, AnimatePresence } from 'motion/react';
 
-const simulatesNotes = [
-  'Sauce piment à part s\'il vous plaît.',
-  'Livrer rapidement si possible.',
-  'Pas d\'oignon dans le burger.',
-  'Veuillez sonner à l\'interphone B3.',
-  undefined
-];
-
-// Relative time helper (pure outer utility)
 const getRelativeTime = (isoString: string) => {
   try {
     const date = new Date(isoString);
@@ -47,64 +29,10 @@ const getRelativeTime = (isoString: string) => {
   }
 };
 
-function generateRandomMockOrder(config: any): Partial<Order> | null {
-  const isDelivery = Math.random() > 0.5;
-  const availableItems = (config?.items || []).filter((it: any) => it.isAvailable);
-  if (availableItems.length === 0) return null;
-  
-  const itemsCount = Math.floor(Math.random() * 2) + 1; // 1 or 2 items
-  const selectedItems = [];
-  let totalPrice = 0;
-  
-  for (let i = 0; i < itemsCount; i++) {
-    const item = availableItems[Math.floor(Math.random() * availableItems.length)];
-    const qty = Math.floor(Math.random() * 2) + 1;
-    selectedItems.push({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: qty
-    });
-    totalPrice += item.price * qty;
-  }
-
-  const firstNames = ['Diallo', 'Sall', 'Sow', 'Ba', 'Cissokho', 'Gaye', 'Ndiaye', 'Tine'];
-  const deliveryLocations = [
-    'Almadies, Lot 4, Dakar',
-    'Plateau, Rue Jules Ferry, Dakar',
-    'Hann Maristes, Immeuble C, Dakar',
-    'Mermoz, Rue des Écrivains, Dakar',
-    'Fann Résidence, Villa 12, Dakar'
-  ];
-
-  const randomName = firstNames[Math.floor(Math.random() * firstNames.length)] + ' ' + (Math.random() > 0.5 ? 'Awa' : 'Mamadou');
-
-  return {
-    type: isDelivery ? 'DELIVERY' : 'DINE_IN',
-    items: selectedItems,
-    totalPrice: totalPrice,
-    customerName: randomName,
-    whatsappNumber: '+22177' + Math.floor(1000000 + Math.random() * 9000000),
-    deliveryAddress: isDelivery ? deliveryLocations[Math.floor(Math.random() * deliveryLocations.length)] : undefined,
-    deliveryNotes: simulatesNotes[Math.floor(Math.random() * simulatesNotes.length)]
-  };
-}
-
 export default function OrderManagerPage() {
   const { config } = useMenuStore();
-  const { orders, addOrder: pushOrderLocally, updateOrderStatus: updateLocalStatus, deleteOrder: deleteLocalOrder } = useOrderStore();
+  const { orders, updateOrderStatus: updateLocalStatus, deleteOrder: deleteLocalOrder } = useOrderStore();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
-
-  // Generate a random mock order to help test the full synchronization flow instantly
-  const handleCreateSimulatedOrder = async () => {
-    if (!config?.id) return;
-    const simulatedData = generateRandomMockOrder(config);
-    if (!simulatedData) return;
-    const response = await createOrder(config.id, simulatedData);
-    if (response.success) {
-      pushOrderLocally(response.data);
-    }
-  };
 
   // Filtering
   const filteredOrders = orders.filter(ord => {
@@ -154,14 +82,6 @@ export default function OrderManagerPage() {
             Gérez le flux de vos plats et changez les statuts en cuisine. Les clients sont avertis instantanément.
           </p>
         </div>
-
-        <button
-          onClick={handleCreateSimulatedOrder}
-          className="flex items-center gap-2 px-5 h-11 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md active:scale-[0.98] transition-all cursor-pointer"
-        >
-          <Sparkles size={14} />
-          Simuler commande client
-        </button>
       </div>
 
       {/* Tabs */}

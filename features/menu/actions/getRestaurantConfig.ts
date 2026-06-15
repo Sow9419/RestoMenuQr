@@ -2,7 +2,7 @@
 
 import { getSupabaseServerClient } from '@/shared/lib/supabaseServer';
 import { ActionResponse } from '@/shared/types/action';
-import { RestaurantConfig, RestaurantSection, RestaurantStyle, MenuCategory, MenuItem } from '@/lib/restoTypes';
+import { RestaurantConfig, RestaurantSection, RestaurantStyle, MenuCategory, MenuItem } from '@/features/menu/types';
 
 const DEFAULT_STYLE: RestaurantStyle = {
   templateLayout: 'classic',
